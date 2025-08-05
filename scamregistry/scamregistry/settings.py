@@ -20,7 +20,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-1+a4wb5fxuhb*in7y^u^5j9vh&*sv%k1ady)4a##jn@qhw^k%8'
+SECRET_KEY = 'django-insecure-%3#owxx%*v$+pv64a$*wen4p^9xs3oap^&8pv9=4&!c*^j)=8f'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -37,9 +37,14 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-     'tailwind',
+    'main',
+    'tailwind',
+    'theme',
     'django_browser_reload'
 ]
+
+TAILWIND_APP_NAME = 'theme'
+INTERNAL_IPS = ['127.0.0.1']
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -69,12 +74,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'scamregistry.wsgi.application'
-
-TAILWIND_APP_NAME = 'theme'
-
-INTERNAL_IPS = [
-    "127.0.0.1",
-]
 
 
 # Database
