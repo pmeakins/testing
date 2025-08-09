@@ -1,0 +1,39 @@
+<nav class="smart-nav" role="navigation" aria-label="Primary">
+  <a class="brand" href="/">
+    <span class="brand__logo">◎</span>
+    <span class="brand__name">Scam Registry</span>
+  </a>
+
+  <!-- Mobile toggle -->
+  <button class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="navMenu">
+    <span class="bar"></span><span class="bar"></span><span class="bar"></span>
+    <span class="sr">Menu</span>
+  </button>
+
+  <ul class="menu" id="navMenu">
+    <li><a href="#"><i class="fa-solid fa-house"></i> Home</a></li>
+
+    <li class="has-dropdown">
+      <button class="dropdown-toggle" aria-expanded="false">
+        <span>Scams</span> <span class="caret">▾</span>
+      </button>
+      <ul class="dropdown">
+        <li><a href="#">Phone Scams</a></li>
+        <li><a href="#">Email Scams</a></li>
+
+        <li class="has-dropdown drop-right">
+          <button class="dropdown-toggle" aria-expanded="false">
+            <span>More</span> <span class="caret">▸</span>
+          </button>
+          <ul class="dropdown">
+            <li><a href="#">Investment Scams</a></li>
+            <li><a href="#">Romance Scams</a></li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+
+    <li><a href="#">Report</a></li>
+    <li><a href="#">Contact</a></li>
+  </ul>
+</nav>
