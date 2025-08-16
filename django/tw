@@ -1,0 +1,23 @@
+python -m pip install django-tailwind
+
+echo "
+INSTALLED_APPS = [
+  # other Django apps
+  'tailwind',
+]
+"
+
+echo "Next"
+read ans
+
+python manage.py tailwind init
+
+echo "
+Add to settings.py :
+TAILWIND_APP_NAME = 'theme'
+"
+
+echo "Next"
+read ans
+
+python manage.py tailwind install

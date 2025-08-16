@@ -20,12 +20,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-%3#owxx%*v$+pv64a$*wen4p^9xs3oap^&8pv9=4&!c*^j)=8f'
+SECRET_KEY = 'django-insecure-$#bxcp*&kt_pg=9mywy&q53fa%r+%&x4utm80n&1v2g$e--x5n'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -37,14 +37,19 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'main',
+    'v1',
     'tailwind',
     'theme',
-    'django_browser_reload'
+
 ]
 
-TAILWIND_APP_NAME = 'theme'
-INTERNAL_IPS = ['127.0.0.1']
+# Template DIR config
+
+
+# Static files config
+STATICFILES_DIRS = [BASE_DIR / "static"]
+# STATICFILES_DIRS = [BASE_DIR / "website" / "templates" / "static"]
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -58,10 +63,16 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'scamregistry.urls'
 
+
 TEMPLATES = [
     {
+
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [],
+        # 'DIRS': [BASE_DIR / 'v1' / 'templates'],
+        # "DIRS": [BASE_DIR / "website"],
+        # "DIRS": [BASE_DIR / "website" / "templates"],
+
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -110,11 +121,8 @@ AUTH_PASSWORD_VALIDATORS = [
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
-
 TIME_ZONE = 'UTC'
-
 USE_I18N = True
-
 USE_TZ = True
 
 
@@ -122,8 +130,17 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = 'static/'
+# STATICFILES_DIRS = [
+#     BASE_DIR / "static",
+#     "/v1/",
+# ]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Tailwind
+TAILWIND_APP_NAME = 'theme'
+
+ACTIVE_APP = "v1"

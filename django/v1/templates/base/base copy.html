@@ -1,0 +1,135 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Sectional Layout{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'website/css/style.css' %}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    html, body {
+      height: 100%;
+      font-family: Arial, sans-serif;
+      padding: 0 1% 0 1%;
+    }
+    div {
+      {% comment %} border: 1px solid #ccc; {% endcomment %}
+      border-radius: 10px;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: 200px 1fr 200px;
+      grid-template-rows: auto auto 1fr auto auto;
+      grid-template-areas:
+        "header-upper header-upper header-upper"
+        "sidebar header-lower header-lower"
+        "sidebar main right-panel"
+        "sidebar footer-upper right-panel"
+        "footer-lower footer-lower footer-lower";
+      height: 100vh;
+    }
+    .sidebar {
+      grid-area: sidebar;
+      background: white;
+      padding: 1rem 1rem 2rem 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      height: 100%;
+    }
+    .sidebar-block {
+      flex-shrink: 0;
+      background: #eaeaea;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    }
+    .sidebar-upper { height: 10%; }
+    .sidebar-middle { height: 30%; }
+    .sidebar-lower { height: 60%; }
+
+    .header-upper { grid-area: header-upper; background: white; color: black; padding: 3px; text-align: center; }
+    .header-lower { grid-area: header-lower; background: white; color: black; padding: 3px; text-align: left; }
+    .main { grid-area: main; padding: 2rem; background: #fff; }
+    .right-panel {
+      grid-area: right-panel;
+      padding: 1rem 1rem 2rem 1rem;
+      background: white;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      height: 100%;
+    }
+    .right-panel-block {
+      flex-shrink: 0;
+      background: #eaeaea;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    }
+    .right-upper { height: 10%; }
+    .right-middle { height: 30%; }
+    .right-lower { height: 60%; }
+
+    .footer-upper { grid-area: footer-upper; background: white; color: black; padding: 0.75rem; text-align: center; }
+    .footer-lower { grid-area: footer-lower; background: white; color: black; padding: 0.75rem; text-align: center; }
+
+    @media (max-width: 768px) {
+      .layout {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto auto auto auto auto auto;
+        grid-template-areas:
+          "header-upper"
+          "header-lower"
+          "sidebar"
+          "main"
+          "right-panel"
+          "footer-upper"
+          "footer-lower";
+        height: auto;
+      }
+      .sidebar, .right-panel, .main {
+        padding: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <div class="header-upper">{% include "website/includes/header_upper.html" %}</div>
+    <div class="header-lower">{% include "website/includes/header_lower.html" %}</div>
+    <div class="sidebar">
+      <div class="sidebar-block sidebar-upper">{% include "website/includes/sidebar-upper.html" %}</div>
+      <div class="sidebar-block sidebar-middle">{% include "website/includes/sidebar-middle.html" %}</div>
+      <div class="sidebar-block sidebar-lower">{% include "website/includes/sidebar-lower.html" %}</div>
+    </div>
+    <div class="main">
+      {% block content %}
+      <div class="block">Main Content</div>
+      {% endblock %}
+    </div>
+    <div class="right-panel">
+      <div class="right-panel-block right-upper">{% include "website/includes/right-panel-upper.html" %}</div>
+      <div class="right-panel-block right-middle">{% include "website/includes/right-panel-middle.html" %}</div>
+      <div class="right-panel-block right-lower">{% include "website/includes/right-panel-lower.html" %}</div>
+    </div>
+    <div class="footer-upper">{% include "website/includes/footer_upper.html" %}</div>
+    <div class="footer-lower">{% include "website/includes/footer_lower.html" %}</div>
+  </div>
+</body>
+</html>
