@@ -1,594 +1,663 @@
-{% load static  %}
+{% load static %}
 
+<!doctype html>
+<html lang="en" class="fontawesome-i2svg-active fontawesome-i2svg-complete">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ScamRegistry - UK Central Hub for Scam/Fraud Reporting</title>
 
-<html class="fontawesome-i2svg-active fontawesome-i2svg-complete">
-    <head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<link rel="stylesheet" href="{% static 'css/dist/styles.css' %}">
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;500;600;700;800;900&display=swap" rel="stylesheet">
 
-    </head>
+  <!-- Your compiled styles -->
+  <link rel="stylesheet" href="{% static 'css/dist/styles.css' %}">
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://cdn.tailwindcss.com/"></script>
-  {% comment %} <link rel="stylesheet" href="{% static 'css/tw.css' %}"> {% endcomment %}
-
-
-    <script> window.FontAwesomeConfig = { autoReplaceSvg: 'nest'};</script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    {% comment %} <script src="https://cdn.highcharts.com/highcharts/highcharts.js"></script> {% endcomment %}
-
-    <script>tailwind.config = {
-  "theme": {
-    "extend": {
-      "colors": {
-        "primary": "#0c326f",
-        "secondary": "#e63946",
-        "accent": "#1d3557",
-        "light": "#f1faee",
-        "dark": "#1d3557"
-      },
-      "fontFamily": {
-        "sans": [
-          "Inter",
-          "sans-serif"
-        ],
-        "heading": [
-          "Montserrat",
-          "sans-serif"
-        ]
+  <!-- Tailwind (CDN) -->
+  <script src="https://cdn.tailwindcss.com/"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: "#0c326f",
+            secondary: "#e63946",
+            accent: "#1d3557",
+            light: "#f1faee",
+            dark: "#1d3557"
+          },
+          fontFamily: {
+            sans: ["Inter", "sans-serif"],
+            heading: ["Montserrat", "sans-serif"]
+          }
+        }
       }
+    };
+  </script>
+
+  <!-- Font Awesome (keep SVG replacement) -->
+  <script>window.FontAwesomeConfig = { autoReplaceSvg: 'nest' };</script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+  <!-- Page styles -->
+  <style>
+    body { font-family: 'Inter', sans-serif !important; }
+    /* Preserve Font Awesome icons */
+    .fa, .fas, .far, .fal, .fab {
+      font-family: "Font Awesome 6 Free", "Font Awesome 6 Brands" !important;
     }
-  }
-};</script>
-    <title>ScamRegistry - UK Central Hub for Scam/Fraud Reporting</title>
-<link rel="preconnect" href="https://fonts.googleapis.com/"><link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;500;600;700;800;900&amp;display=swap"><style>
-      body {
-        font-family: 'Inter', sans-serif !important;
-      }
-
-      /* Preserve Font Awesome icons */
-      .fa, .fas, .far, .fal, .fab {
-        font-family: "Font Awesome 6 Free", "Font Awesome 6 Brands" !important;
-      }
-    </style>
-    <style>
-  .highlighted-section {
-    outline: 2px solid #3F20FB;
-    background-color: rgba(63, 32, 251, 0.1);
-  }
-
-  .edit-button {
-    position: absolute;
-    z-index: 1000;
-  }
-
-  ::-webkit-scrollbar {
-    display: none;
-  }
-
-  html, body {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-  }
-
+    .highlighted-section { outline: 2px solid #3F20FB; background-color: rgba(63, 32, 251, 0.1); }
+    .edit-button { position: absolute; z-index: 1000; }
+    ::-webkit-scrollbar { display: none; }
+    html, body { -ms-overflow-style: none; scrollbar-width: none; }
   </style>
+</head>
+
 <body class="bg-gray-50 font-sans">
-    <!-- Top Bar -->
-     <div class="navbar bg-base-100 shadow-sm">
-
+  <!-- Top Bar -->
+  <div class="navbar bg-base-100 shadow-sm">
     <div id="top-bar" class="bg-primary text-white py-2 px-4 md:px-8">
-        <div class="container mx-auto flex justify-between items-center">
-            <div class="flex items-center space-x-4">
-                <span class="text-sm hover:underline flex items-center cursor-pointer">
-                    <i class="mr-1" data-fa-i2svg=""><svg class="svg-inline--fa fa-phone-volume" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="phone-volume" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" data-fa-i2svg=""><path fill="currentColor" d="M280 0C408.1 0 512 103.9 512 232c0 13.3-10.7 24-24 24s-24-10.7-24-24c0-101.6-82.4-184-184-184c-13.3 0-24-10.7-24-24s10.7-24 24-24zm8 192a32 32 0 1 1 0 64 32 32 0 1 1 0-64zm-32-72c0-13.3 10.7-24 24-24c75.1 0 136 60.9 136 136c0 13.3-10.7 24-24 24s-24-10.7-24-24c0-48.6-39.4-88-88-88c-13.3 0-24-10.7-24-24zM117.5 1.4c19.4-5.3 39.7 4.6 47.4 23.2l40 96c6.8 16.3 2.1 35.2-11.6 46.3L144 207.3c33.3 70.4 90.3 127.4 160.7 160.7L345 318.7c11.2-13.7 30-18.4 46.3-11.6l96 40c18.6 7.7 28.5 28 23.2 47.4l-24 88C481.8 499.9 466 512 448 512C200.6 512 0 311.4 0 64C0 46 12.1 30.2 29.5 25.4l88-24z"></path></svg></i> Emergency: 0800 123 4567
-                </span>
-                <span class="hidden md:inline-block text-gray-300">|</span>
-                <span class="hidden md:flex text-sm hover:underline items-center cursor-pointer">
-                    <i class="mr-1" data-fa-i2svg=""><svg class="svg-inline--fa fa-circle-info" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="circle-info" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" data-fa-i2svg=""><path fill="currentColor" d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM216 336h24V272H216c-13.3 0-24-10.7-24-24s10.7-24 24-24h48c13.3 0 24 10.7 24 24v88h8c13.3 0 24 10.7 24 24s-10.7 24-24 24H216c-13.3 0-24-10.7-24-24s10.7-24 24-24zm40-208a32 32 0 1 1 0 64 32 32 0 1 1 0-64z"></path></svg></i> Help &amp; Support
-                </span>
-            </div>
-            <div class="flex items-center space-x-4">
-                <span class="text-sm hover:underline cursor-pointer">Sign In</span>
-                <span class="text-sm hover:underline cursor-pointer">Register</span>
-                <span class="hidden md:inline-block text-sm bg-secondary hover:bg-red-700 px-3 py-1 rounded-md transition-colors cursor-pointer">
-                    Report a Scam
-                </span>
-            </div>
+      <div class="container mx-auto flex justify-between items-center">
+        <div class="flex items-center space-x-4">
+          <span class="text-sm hover:underline flex items-center cursor-pointer">
+            <i class="mr-1" data-fa-i2svg="">
+              <svg class="svg-inline--fa fa-phone-volume" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="phone-volume" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" data-fa-i2svg=""><path fill="currentColor" d="M280 0C408.1 0 512 103.9 512 232c0 13.3-10.7 24-24 24s-24-10.7-24-24c0-101.6-82.4-184-184-184c-13.3 0-24-10.7-24-24s10.7-24 24-24zm8 192a32 32 0 1 1 0 64 32 32 0 1 1 0-64zm-32-72c0-13.3 10.7-24 24-24c75.1 0 136 60.9 136 136c0 13.3-10.7 24-24 24s-24-10.7-24-24c0-48.6-39.4-88-88-88c-13.3 0-24-10.7-24-24zM117.5 1.4c19.4-5.3 39.7 4.6 47.4 23.2l40 96c6.8 16.3 2.1 35.2-11.6 46.3L144 207.3c33.3 70.4 90.3 127.4 160.7 160.7L345 318.7c11.2-13.7 30-18.4 46.3-11.6l96 40c18.6 7.7 28.5 28 23.2 47.4l-24 88C481.8 499.9 466 512 448 512C200.6 512 0 311.4 0 64C0 46 12.1 30.2 29.5 25.4l88-24z"></path></svg>
+            </i> Emergency: 0800 XXX XXXX
+          </span>
+          <span class="hidden md:inline-block text-gray-300">|</span>
+          <span class="hidden md:flex text-sm hover:underline items-center cursor-pointer">
+            <i class="mr-1" data-fa-i2svg="">
+              <svg class="svg-inline--fa fa-circle-info" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="circle-info" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" data-fa-i2svg=""><path fill="currentColor" d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM216 336h24V272H216c-13.3 0-24-10.7-24-24s10.7-24 24-24h48c13.3 0 24 10.7 24 24v88h8c13.3 0 24 10.7 24 24s-10.7 24-24 24H216c-13.3 0-24-10.7-24-24s10.7-24 24-24zm40-208a32 32 0 1 1 0 64 32 32 0 1 1 0-64z"></path></svg>
+            </i> Help &amp; Support.
+          </span>
         </div>
+        <div class="flex items-center space-x-4">
+          <span class="text-sm hover:underline cursor-pointer">Sign In</span>
+          <span class="text-sm hover:underline cursor-pointer">Register</span>
+          <span class="hidden md:inline-block text-sm bg-secondary hover:bg-red-700 px-3 py-1 rounded-md transition-colors cursor-pointer">
+            Report a Scam
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header id="header" class="bg-white shadow-md">
+    <div class="container mx-auto px-4 md:px-8">
+      <div class="flex justify-between items-center py-4">
+        <div class="flex items-center space-x-2">
+          <div class="w-12 h-12 bg-primary rounded-full flex items-center justify-center">
+            <i class="text-white text-xl" data-fa-i2svg="">
+              <svg class="svg-inline--fa fa-shield-halved" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="shield-halved" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" data-fa-i2svg=""><path fill="currentColor" d="M256 0c4.6 0 9.2 1 13.4 2.9L457.7 82.8c22 9.3 38.4 31 38.3 57.2c-.5 99.2-41.3 280.7-213.6 363.2c-16.7 8-36.1 8-52.8 0C57.3 420.7 16.5 239.2 16 140c-.1-26.2 16.3-47.9 38.3-57.2L242.7 2.9C246.8 1 251.4 0 256 0zm0 66.8V444.8C394 378 431.1 230.1 432 141.4L256 66.8l0 0z"></path></svg>
+            </i>
+          </div>
+          <div>
+            <a href="/"><img src="{% static 'images/scamlogo.png' %}" class="h-9" alt="ScamRegistry logo"></a>
+            <p class="text-xs text-gray-500">UK Central Hub for Scam/Fraud Prevention</p>
+          </div>
+        </div>
+
+        <div class="hidden lg:flex items-center space-x-6">
+          <span class="flex items-center space-x-1 text-accent hover:text-secondary font-medium transition-colors cursor-pointer">
+            <i data-fa-i2svg="">
+              <svg class="svg-inline--fa fa-house" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="house" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" data-fa-i2svg=""><path fill="currentColor" d="M575.8 255.5c0 18-15 32.1-32 32.1h-32l.7 160.2c0 2.7-.2 5.4-.5 8.1V472c0 22.1-17.9 40-40 40H456c-1.1 0-2.2 0-3.3-.1c-1.4 .1-2.8 .1-4.2 .1H416 392c-22.1 0-40-17.9-40-40V448 384c0-17.7-14.3-32-32-32H256c-17.7 0-32 14.3-32 32v64 24c0 22.1-17.9 40-40 40H160 128.1c-1.5 0-3-.1-4.5-.2c-1.2 .1-2.4 .2-3.6 .2H104c-22.1 0-40-17.9-40-40V360c0-.9 0-1.9 .1-2.8V287.6H32c-18 0-32-14-32-32.1c0-9 3-17 10-24L266.4 8c7-7 15-8 22-8s15 2 21 7L564.8 231.5c8 7 12 15 11 24z"></path></svg>
+            </i>
+            <span>Home</span>
+          </span>
+
+          <div class="relative group">
+            <span class="flex items-center space-x-1 text-accent hover:text-secondary font-medium transition-colors cursor-pointer">
+              <i data-fa-i2svg="">
+                <svg class="svg-inline--fa fa-triangle-exclamation" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="triangle-exclamation" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" data-fa-i2svg=""><path fill="currentColor" d="M256 32c14.2 0 27.3 7.5 34.5 19.8l216 368c7.3 12.4 7.3 27.7 .2 40.1S486.3 480 472 480H40c-14.3 0-27.6-7.7-34.7-20.1s-7-27.8 .2-40.1l216-368C228.7 39.5 241.8 32 256 32zm0 128c-13.3 0-24 10.7-24 24V296c0 13.3 10.7 24 24 24s24-10.7 24-24V184c0-13.3-10.7-24-24-24zm32 224a32 32 0 1 0 -64 0 32 32 0 1 0 64 0z"></path></svg>
+              </i>
+              <span>Scams</span>
+              <i class="text-xs" data-fa-i2svg="">
+                <svg class="svg-inline--fa fa-chevron-down" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="chevron-down" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" data-fa-i2svg=""><path fill="currentColor" d="M233.4 406.6c12.5 12.5 32.8 12.5 45.3 0l192-192c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L256 338.7 86.6 169.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l192 192z"></path></svg>
+              </i>
+            </span>
+            <div class="absolute left-0 mt-2 w-48 bg-white shadow-lg rounded-md overflow-hidden z-10 hidden group-hover:block">
+              <span class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer">Phone Scams</span>
+              <span class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer">Email Scams</span>
+              <span class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer">Online Scams</span>
+              <span class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer">Banking Scams</span>
+              <span class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer">More...</span>
+            </div>
+          </div>
+
+          <span class="flex items-center space-x-1 text-accent hover:text-secondary font-medium transition-colors cursor-pointer">
+            <i data-fa-i2svg="">
+              <svg class="svg-inline--fa fa-bullhorn" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="bullhorn" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" data-fa-i2svg=""><path fill="currentColor" d="M480 32c0-12.9-7.8-24.6-19.8-29.6s-25.7-2.2-34.9 6.9L381.7 53c-48 48-113.1 75-181 75H192 160 64c-35.3 0-64 28.7-64 64v96c0 35.3 28.7 64 64 64l0 128c0 17.7 14.3 32 32 32h64c17.7 0 32-14.3 32-32V352l8.7 0c67.9 0 133 27 181 75l43.6 43.6c9.2 9.2 22.9 11.9 34.9 6.9s19.8-16.6 19.8-29.6V300.4c18.6-8.8 32-32.5 32-60.4s-13.4-51.6-32-60.4V32zm-64 76.7V240 371.3C357.2 317.8 280.5 288 200.7 288H192V192h8.7c79.8 0 156.5-29.8 215.3-83.3z"></path></svg>
+            </i>
+            <span>Report</span>
+          </span>
+          <span class="flex items-center space-x-1 text-accent hover:text-secondary font-medium transition-colors cursor-pointer">
+            <i data-fa-i2svg="">
+              <svg class="svg-inline--fa fa-newspaper" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="newspaper" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" data-fa-i2svg=""><path fill="currentColor" d="M96 96c0-35.3 28.7-64 64-64H448c35.3 0 64 28.7 64 64V416c0 35.3-28.7 64-64 64H80c-44.2 0-80-35.8-80-80V128c0-17.7 14.3-32 32-32s32 14.3 32 32V400c0 8.8 7.2 16 16 16s16-7.2 16-16V96zm64 24v80c0 13.3 10.7 24 24 24H296c13.3 0 24-10.7 24-24V120c0-13.3-10.7-24-24-24H184c-13.3 0-24 10.7-24 24zm208-8c0 8.8 7.2 16 16 16h48c8.8 0 16-7.2 16-16s-7.2-16-16-16H384c-8.8 0-16 7.2-16 16zm0 96c0 8.8 7.2 16 16 16h48c8.8 0 16-7.2 16-16s-7.2-16-16-16H384c-8.8 0-16 7.2-16 16zM160 304c0 8.8 7.2 16 16 16H432c8.8 0 16-7.2 16-16s-7.2-16-16-16H176c-8.8 0-16 7.2-16 16zm0 96c0 8.8 7.2 16 16 16H432c8.8 0 16-7.2 16-16s-7.2-16-16-16H176c-8.8 0-16 7.2-16 16z"></path></svg>
+            </i>
+            <span>News</span>
+          </span>
+          <span class="flex items-center space-x-1 text-accent hover:text-secondary font-medium transition-colors cursor-pointer">
+            <i data-fa-i2svg="">
+              <svg class="svg-inline--fa fa-book" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="book" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" data-fa-i2svg=""><path fill="currentColor" d="M96 0C43 0 0 43 0 96V416c0 53 43 96 96 96H384h32c17.7 0 32-14.3 32-32s-14.3-32-32-32V384c17.7 0 32-14.3 32-32V32c0-17.7-14.3-32-32-32H384 96zm0 384H352v64H96c-17.7 0-32-14.3-32-32s14.3-32 32-32zm32-240c0-8.8 7.2-16 16-16H336c8.8 0 16 7.2 16 16s-7.2 16-16 16H144c-8.8 0-16-7.2-16-16zm16 48H336c8.8 0 16 7.2 16 16s-7.2 16-16 16H144c-8.8 0-16-7.2-16-16s7.2-16 16-16z"></path></svg>
+            </i>
+            <span>Resources</span>
+          </span>
+          <span class="flex items-center space-x-1 text-accent hover:text-secondary font-medium transition-colors cursor-pointer">
+            <i data-fa-i2svg="">
+              <svg class="svg-inline--fa fa-phone" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="phone" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" data-fa-i2svg=""><path fill="currentColor" d="M164.9 24.6c-7.7-18.6-28-28.5-47.4-23.2l-88 24C12.1 30.2 0 46 0 64C0 311.4 200.6 512 448 512c18 0 33.8-12.1 38.6-29.5l24-88c5.3-19.4-4.6-39.7-23.2-47.4l-96-40c-16.3-6.8-35.2-2.1-46.3 11.6L304.7 368C234.3 334.7 177.3 277.7 144 207.3L193.3 167c13.7-11.2 18.4-30 11.6-46.3l-40-96z"></path></svg>
+            </i>
+            <span>Contact</span>
+          </span>
+        </div>
+
+        <div class="flex items-center space-x-4">
+          <div class="relative">
+            <input type="text" placeholder="Search..." class="pl-10 pr-4 py-2 rounded-full text-sm border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent w-40 md:w-60">
+            <i class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" data-fa-i2svg="">
+              <svg class="svg-inline--fa fa-magnifying-glass" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="magnifying-glass" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" data-fa-i2svg=""><path fill="currentColor" d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352a144 144 0 1 0 0-288 144 144 0 1 0 0 288z"></path></svg>
+            </i>
+          </div>
+          <button class="lg:hidden text-gray-600">
+            <i class="text-xl" data-fa-i2svg="">
+              <svg class="svg-inline--fa fa-bars" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="bars" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" data-fa-i2svg=""><path fill="currentColor" d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"></path></svg>
+            </i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+
+
+
+  <!-- Banner -->
+<div id="hero-banner" class="relative h-[400px] md:h-[500px] overflow-hidden">
+  <!-- Background image -->
+  <img
+    class="absolute inset-0 w-full h-full object-cover"
+    src="https://storage.googleapis.com/uxpilot-auth.appspot.com/a130da8014-988c845510d93560d793.png"
+    alt="dark cybersecurity background with hacker in hoodie, data breach visualization, blue and red lighting, government agency style"
+  >
+  <!-- Overlay gradient -->
+  <div class="absolute inset-0 bg-gradient-to-r from-primary/80 to-dark/50"></div>
+
+  <!-- Content container -->
+  <div class="container mx-auto px-4 md:px-8 relative h-full flex items-center justify-between">
+
+    <!-- Left: main content -->
+    <div class="max-w-2xl text-white">
+      <h1 class="text-3xl md:text-5xl font-bold mb-4 font-heading">
+        Uniting the UK Against <br/>Scams &amp; Fraud
+      </h1>
+      <p class="text-lg md:text-xl mb-8">
+        The ScamRegistry is the UK's central hub for reporting and <br/>preventing fraud. Together we can protect each other.
+      </p>
+      <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+        <span class="bg-secondary hover:bg-red-700 text-white font-medium px-6 py-3 rounded-md text-center transition-colors cursor-pointer">
+          Report a Scam
+        </span>
+        <span class="bg-secondary hover:bg-red-700 text-white font-medium px-6 py-3 rounded-md text-center transition-colors cursor-pointer">
+          Check a Scam
+        </span>
+      </div>
     </div>
 
+    <!-- Right: Coming Soon badge (stacked lines) -->
+    <div class="hidden md:flex items-center justify-center text-right">
+      <div class="inline-block bg-gradient-to-r from-red-600 via-red-500 to-orange-400 text-white px-12 py-8 rounded-xl shadow-2xl">
+        <div class="text-3xl md:text-5xl font-extrabold">🚧 Coming Soon</div>
+        <div class="text-xl md:text-2xl font-medium mt-2">Build in Progress</div>
+        <hr/>
+                <div class="text-xl md:text-2xl font-medium mt-2"><br/>If you are experiencing struggles </div>
+                <div class="text-xl md:text-2xl font-medium mt-2"><br/>contact your local police or <u><a href="https://www.actionfraud.police.uk/">UK Action Fraud.</a></u></div>
+
+      </div>
+    </div>
+  </div>
+</div>
 
 
 
-    <!-- Header -->
-    <header id="header" class="bg-white shadow-md">
-        <div class="container mx-auto px-4 md:px-8">
-            <div class="flex justify-between items-center py-4">
-                <div class="flex items-center space-x-2">
-                    <div class="w-12 h-12 bg-primary rounded-full flex items-center justify-center">
-                        <i class="text-white text-xl" data-fa-i2svg=""><svg class="svg-inline--fa fa-shield-halved" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="shield-halved" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" data-fa-i2svg=""><path fill="currentColor" d="M256 0c4.6 0 9.2 1 13.4 2.9L457.7 82.8c22 9.3 38.4 31 38.3 57.2c-.5 99.2-41.3 280.7-213.6 363.2c-16.7 8-36.1 8-52.8 0C57.3 420.7 16.5 239.2 16 140c-.1-26.2 16.3-47.9 38.3-57.2L242.7 2.9C246.8 1 251.4 0 256 0zm0 66.8V444.8C394 378 431.1 230.1 432 141.4L256 66.8l0 0z"></path></svg></i>
-                    </div>
-                    <div>
-                        <a href="/"><img src="{% static 'images/scamlogo.png' %}" class="h-9"></a>
-                        <p class="text-xs text-gray-500">UK Central Hub for Scam/Fraud Prevention</p>
-                    </div>
-                </div>
-                <div class="hidden lg:flex items-center space-x-6">
-                    <span class="flex items-center space-x-1 text-accent hover:text-secondary font-medium transition-colors cursor-pointer">
-                        <i data-fa-i2svg=""><svg class="svg-inline--fa fa-house" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="house" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" data-fa-i2svg=""><path fill="currentColor" d="M575.8 255.5c0 18-15 32.1-32 32.1h-32l.7 160.2c0 2.7-.2 5.4-.5 8.1V472c0 22.1-17.9 40-40 40H456c-1.1 0-2.2 0-3.3-.1c-1.4 .1-2.8 .1-4.2 .1H416 392c-22.1 0-40-17.9-40-40V448 384c0-17.7-14.3-32-32-32H256c-17.7 0-32 14.3-32 32v64 24c0 22.1-17.9 40-40 40H160 128.1c-1.5 0-3-.1-4.5-.2c-1.2 .1-2.4 .2-3.6 .2H104c-22.1 0-40-17.9-40-40V360c0-.9 0-1.9 .1-2.8V287.6H32c-18 0-32-14-32-32.1c0-9 3-17 10-24L266.4 8c7-7 15-8 22-8s15 2 21 7L564.8 231.5c8 7 12 15 11 24z"></path></svg></i>
-                        <span>Home</span>
-                    </span>
-                    <div class="relative group">
-                        <span class="flex items-center space-x-1 text-accent hover:text-secondary font-medium transition-colors cursor-pointer">
-                            <i data-fa-i2svg=""><svg class="svg-inline--fa fa-triangle-exclamation" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="triangle-exclamation" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" data-fa-i2svg=""><path fill="currentColor" d="M256 32c14.2 0 27.3 7.5 34.5 19.8l216 368c7.3 12.4 7.3 27.7 .2 40.1S486.3 480 472 480H40c-14.3 0-27.6-7.7-34.7-20.1s-7-27.8 .2-40.1l216-368C228.7 39.5 241.8 32 256 32zm0 128c-13.3 0-24 10.7-24 24V296c0 13.3 10.7 24 24 24s24-10.7 24-24V184c0-13.3-10.7-24-24-24zm32 224a32 32 0 1 0 -64 0 32 32 0 1 0 64 0z"></path></svg></i>
-                            <span>Scams</span>
-                            <i class="text-xs" data-fa-i2svg=""><svg class="svg-inline--fa fa-chevron-down" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="chevron-down" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" data-fa-i2svg=""><path fill="currentColor" d="M233.4 406.6c12.5 12.5 32.8 12.5 45.3 0l192-192c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L256 338.7 86.6 169.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l192 192z"></path></svg></i>
-                        </span>
-                        <div class="absolute left-0 mt-2 w-48 bg-white shadow-lg rounded-md overflow-hidden z-10 hidden group-hover:block">
-                            <span class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer">Phone Scams</span>
-                            <span class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer">Email Scams</span>
-                            <span class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer">Online Scams</span>
-                            <span class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer">Banking Scams</span>
-                            <span class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer">More...</span>
-                        </div>
-                    </div>
-                    <span class="flex items-center space-x-1 text-accent hover:text-secondary font-medium transition-colors cursor-pointer">
-                        <i data-fa-i2svg=""><svg class="svg-inline--fa fa-bullhorn" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="bullhorn" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" data-fa-i2svg=""><path fill="currentColor" d="M480 32c0-12.9-7.8-24.6-19.8-29.6s-25.7-2.2-34.9 6.9L381.7 53c-48 48-113.1 75-181 75H192 160 64c-35.3 0-64 28.7-64 64v96c0 35.3 28.7 64 64 64l0 128c0 17.7 14.3 32 32 32h64c17.7 0 32-14.3 32-32V352l8.7 0c67.9 0 133 27 181 75l43.6 43.6c9.2 9.2 22.9 11.9 34.9 6.9s19.8-16.6 19.8-29.6V300.4c18.6-8.8 32-32.5 32-60.4s-13.4-51.6-32-60.4V32zm-64 76.7V240 371.3C357.2 317.8 280.5 288 200.7 288H192V192h8.7c79.8 0 156.5-29.8 215.3-83.3z"></path></svg></i>
-                        <span>Report</span>
-                    </span>
-                    <span class="flex items-center space-x-1 text-accent hover:text-secondary font-medium transition-colors cursor-pointer">
-                        <i data-fa-i2svg=""><svg class="svg-inline--fa fa-newspaper" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="newspaper" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" data-fa-i2svg=""><path fill="currentColor" d="M96 96c0-35.3 28.7-64 64-64H448c35.3 0 64 28.7 64 64V416c0 35.3-28.7 64-64 64H80c-44.2 0-80-35.8-80-80V128c0-17.7 14.3-32 32-32s32 14.3 32 32V400c0 8.8 7.2 16 16 16s16-7.2 16-16V96zm64 24v80c0 13.3 10.7 24 24 24H296c13.3 0 24-10.7 24-24V120c0-13.3-10.7-24-24-24H184c-13.3 0-24 10.7-24 24zm208-8c0 8.8 7.2 16 16 16h48c8.8 0 16-7.2 16-16s-7.2-16-16-16H384c-8.8 0-16 7.2-16 16zm0 96c0 8.8 7.2 16 16 16h48c8.8 0 16-7.2 16-16s-7.2-16-16-16H384c-8.8 0-16 7.2-16 16zM160 304c0 8.8 7.2 16 16 16H432c8.8 0 16-7.2 16-16s-7.2-16-16-16H176c-8.8 0-16 7.2-16 16zm0 96c0 8.8 7.2 16 16 16H432c8.8 0 16-7.2 16-16s-7.2-16-16-16H176c-8.8 0-16 7.2-16 16z"></path></svg></i>
-                        <span>News</span>
-                    </span>
-                    <span class="flex items-center space-x-1 text-accent hover:text-secondary font-medium transition-colors cursor-pointer">
-                        <i data-fa-i2svg=""><svg class="svg-inline--fa fa-book" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="book" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" data-fa-i2svg=""><path fill="currentColor" d="M96 0C43 0 0 43 0 96V416c0 53 43 96 96 96H384h32c17.7 0 32-14.3 32-32s-14.3-32-32-32V384c17.7 0 32-14.3 32-32V32c0-17.7-14.3-32-32-32H384 96zm0 384H352v64H96c-17.7 0-32-14.3-32-32s14.3-32 32-32zm32-240c0-8.8 7.2-16 16-16H336c8.8 0 16 7.2 16 16s-7.2 16-16 16H144c-8.8 0-16-7.2-16-16zm16 48H336c8.8 0 16 7.2 16 16s-7.2 16-16 16H144c-8.8 0-16-7.2-16-16s7.2-16 16-16z"></path></svg></i>
-                        <span>Resources</span>
-                    </span>
-                    <span class="flex items-center space-x-1 text-accent hover:text-secondary font-medium transition-colors cursor-pointer">
-                        <i data-fa-i2svg=""><svg class="svg-inline--fa fa-phone" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="phone" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" data-fa-i2svg=""><path fill="currentColor" d="M164.9 24.6c-7.7-18.6-28-28.5-47.4-23.2l-88 24C12.1 30.2 0 46 0 64C0 311.4 200.6 512 448 512c18 0 33.8-12.1 38.6-29.5l24-88c5.3-19.4-4.6-39.7-23.2-47.4l-96-40c-16.3-6.8-35.2-2.1-46.3 11.6L304.7 368C234.3 334.7 177.3 277.7 144 207.3L193.3 167c13.7-11.2 18.4-30 11.6-46.3l-40-96z"></path></svg></i>
-                        <span>Contact</span>
-                    </span>
-                </div>
-                <div class="flex items-center space-x-4">
-                    <div class="relative">
-                        <input type="text" placeholder="Search..." class="pl-10 pr-4 py-2 rounded-full text-sm border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent w-40 md:w-60">
-                        <i class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" data-fa-i2svg=""><svg class="svg-inline--fa fa-magnifying-glass" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="magnifying-glass" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" data-fa-i2svg=""><path fill="currentColor" d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352a144 144 0 1 0 0-288 144 144 0 1 0 0 288z"></path></svg></i>
-                    </div>
-                    <button class="lg:hidden text-gray-600">
-                        <i class="text-xl" data-fa-i2svg=""><svg class="svg-inline--fa fa-bars" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="bars" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" data-fa-i2svg=""><path fill="currentColor" d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"></path></svg></i>
-                    </button>
-                </div>
-            </div>
+
+
+  <!-- Alert Bar -->
+  <div id="alert-bar" class="bg-secondary text-white py-3">
+    <div class="container mx-auto px-4 md:px-8">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center">
+          <i class="mr-2 text-xl" data-fa-i2svg="">
+            <svg class="svg-inline--fa fa-circle-exclamation" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="circle-exclamation" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" data-fa-i2svg=""><path fill="currentColor" d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zm0-384c13.3 0 24 10.7 24 24V264c0 13.3-10.7 24-24 24s-24-10.7-24-24V152c0-13.3 10.7-24 24-24zM224 352a32 32 0 1 1 64 0 32 32 0 1 1 -64 0z"></path></svg>
+          </i>
+          <p class="font-medium">{% include "includes/alerts.html" %}</p>
         </div>
-    </header>
+        <span class="whitespace-nowrap underline text-sm font-medium cursor-pointer">Learn More</span>
+      </div>
+    </div>
+  </div>
 
-    <!-- Hero Banner -->
-    <div id="hero-banner" class="relative h-[400px] md:h-[500px] overflow-hidden">
-        <img class="absolute inset-0 w-full h-full object-cover" src="https://storage.googleapis.com/uxpilot-auth.appspot.com/a130da8014-988c845510d93560d793.png" alt="dark cybersecurity background with hacker in hoodie, data breach visualization, blue and red lighting, government agency style">
-        <div class="absolute inset-0 bg-gradient-to-r from-primary/80 to-dark/50"></div>
-        <div class="container mx-auto px-4 md:px-8 relative h-full flex items-center">
-            <div class="max-w-2xl text-white">
-                <h1 class="text-3xl md:text-5xl font-bold mb-4 font-heading">Uniting the UK Against <br/>Scams &amp; Fraud</h1>
-                <p class="text-lg md:text-xl mb-8">The ScamRegistry is the UK's central hub for reporting and <br/>preventing fraud. Together we can protect each other.</p>
-                <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
-                    <span class="bg-secondary hover:bg-red-700 text-white font-medium px-6 py-3 rounded-md text-center transition-colors cursor-pointer">
-                        Report a Scam
-                    </span>
-                        <span class="bg-secondary hover:bg-red-700 text-white font-medium px-6 py-3 rounded-md text-center transition-colors cursor-pointer">
-                        Check a Scam
-                    </span>
+  <!-- Main Content -->
+  <main id="main-content" class="container mx-auto px-4 md:px-8 py-8">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <!-- Main Content Area -->
+      <div class="lg:col-span-2">
+        <!-- Latest Scam Reports Section -->
+        <section id="latest-scams" class="mb-10">
+          <div class="flex justify-between items-center mb-6">
+            <h2 class="text-2xl font-bold text-primary font-heading">Latest Scam Reports</h2>
+            <span class="text-secondary hover:underline font-medium flex items-center cursor-pointer">
+              <span>View All</span>
+              <i class="ml-1" data-fa-i2svg="">
+                <svg class="svg-inline--fa fa-arrow-right" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="arrow-right" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" data-fa-i2svg=""><path fill="currentColor" d="M438.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L338.8 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l306.7 0L233.4 393.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"></path></svg>
+              </i>
+            </span>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div id="scam-card-1" class="bg-white rounded-lg shadow-md overflow-hidden transition-transform hover:shadow-lg hover:-translate-y-1">
+              <div class="h-48 overflow-hidden relative">
+                <span class="absolute top-0 right-0 bg-secondary text-white text-xs font-bold px-2 py-1 rounded-bl-md">URGENT</span>
+                <img class="w-full h-full object-cover" src="https://storage.googleapis.com/uxpilot-auth.appspot.com/67690ed580-9e2e73b8db3a7f6aba27.png" alt="phishing email scam concept with fishing hook and email">
+              </div>
+              <div class="p-4">
+                <div class="flex justify-between items-center mb-2">
+                  <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded">Email Scam</span>
+                  <span class="text-xs text-gray-500">Reported 2 hours ago</span>
                 </div>
+                <h3 class="text-lg font-bold mb-2">HMRC Tax Refund Phishing Email</h3>
+                <p class="text-gray-600 text-sm mb-3">Fraudsters impersonating HMRC are sending emails claiming recipients are eligible for a tax refund and asking for banking details.</p>
+                <div class="flex justify-between items-center">
+                  <span class="text-xs text-gray-500">Reports: 47</span>
+                  <span class="text-primary hover:text-secondary font-medium text-sm cursor-pointer">Read More</span>
+                </div>
+              </div>
             </div>
+            <div id="scam-card-2" class="bg-white rounded-lg shadow-md overflow-hidden transition-transform hover:shadow-lg hover:-translate-y-1">
+              <div class="h-48 overflow-hidden relative">
+                <img class="w-full h-full object-cover" src="https://storage.googleapis.com/uxpilot-auth.appspot.com/b276383131-9a1ef089d7380e117c79.png" alt="phone scam concept with smartphone and warning signs">
+              </div>
+              <div class="p-4">
+                <div class="flex justify-between items-center mb-2">
+                  <span class="bg-red-100 text-red-800 text-xs font-medium px-2 py-1 rounded">Phone Scam</span>
+                  <span class="text-xs text-gray-500">Reported 5 hours ago</span>
+                </div>
+                <h3 class="text-lg font-bold mb-2">Bank Security Department Impersonation</h3>
+                <p class="text-gray-600 text-sm mb-3">Scammers calling from spoofed bank numbers claiming to be from security departments, asking victims to move money to "safe accounts".</p>
+                <div class="flex justify-between items-center">
+                  <span class="text-xs text-gray-500">Reports: 23</span>
+                  <span class="text-primary hover:text-secondary font-medium text-sm cursor-pointer">Read More</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Trending Scams Data Visualization -->
+        <section id="trending-scams" class="bg-white p-6 rounded-lg shadow-md mb-10">
+          <h2 class="text-2xl font-bold text-primary mb-4 font-heading">Trending Scams</h2>
+          <p class="text-gray-600 mb-6">Real-time analysis of the most frequently reported scams across the UK in the past 7 days.</p>
+          <div id="scam-trends-chart" class="h-[400px]"></div>
+          {% comment %}
+          <script>
+            document.addEventListener('DOMContentLoaded', function() {
+              Highcharts.chart('scam-trends-chart', {
+                chart: { type: 'column' },
+                title: { text: null },
+                xAxis: { categories: ['Phone Scams', 'Email Phishing', 'SMS Scams', 'Banking Fraud', 'Investment Scams', 'Shopping Scams', 'Romance Scams'] },
+                yAxis: { title: { text: 'Number of Reports' } },
+                colors: ['#0c326f', '#e63946', '#457b9d', '#1d3557', '#a8dadc'],
+                plotOptions: { column: { borderRadius: 5 } },
+                series: [
+                  { name: 'This Week', data: [349, 278, 192, 167, 142, 117, 89] },
+                  { name: 'Last Week', data: [321, 256, 210, 152, 128, 106, 95] }
+                ]
+              });
+            });
+          </script>
+          {% endcomment %}
+        </section>
+
+        <!-- Latest News Section -->
+        <section id="latest-news" class="mb-10">
+          <div class="flex justify-between items-center mb-6">
+            <h2 class="text-2xl font-bold text-primary font-heading">Latest News &amp; Updates</h2>
+            <span class="text-secondary hover:underline font-medium flex items-center cursor-pointer">
+              <span>View All</span>
+              <i class="ml-1" data-fa-i2svg="">
+                <svg class="svg-inline--fa fa-arrow-right" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="arrow-right" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" data-fa-i2svg=""><path fill="currentColor" d="M438.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L338.8 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l306.7 0L233.4 393.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"></path></svg>
+              </i>
+            </span>
+          </div>
+          <div class="space-y-6">
+            <div id="news-item-1" class="bg-white rounded-lg shadow-md overflow-hidden flex flex-col md:flex-row">
+              <div class="md:w-1/3 h-48 md:h-auto overflow-hidden">
+                <img class="w-full h-full object-cover" src="https://storage.googleapis.com/uxpilot-auth.appspot.com/8ba72c47a5-df0120350ece829f712d.png" alt="cybersecurity professionals working in office with multiple screens">
+              </div>
+              <div class="md:w-2/3 p-6">
+                <div class="flex justify-between items-center mb-2">
+                  <span class="bg-primary text-white text-xs font-medium px-2 py-1 rounded">Press Release</span>
+                  <span class="text-xs text-gray-500">August 8, 2023</span>
+                </div>
+                <h3 class="text-xl font-bold mb-2">ScamRegistry Launches New AI-Powered Scam Detection Tool</h3>
+                <p class="text-gray-600 mb-4">The new tool uses artificial intelligence to analyze potential scams and provide real-time warnings to users before they become victims.</p>
+                <span class="text-primary hover:text-secondary font-medium cursor-pointer">Read Full Article</span>
+              </div>
+            </div>
+
+            <div id="news-item-2" class="bg-white rounded-lg shadow-md overflow-hidden flex flex-col md:flex-row">
+              <div class="md:w-1/3 h-48 md:h-auto overflow-hidden">
+                <img class="w-full h-full object-cover" src="https://storage.googleapis.com/uxpilot-auth.appspot.com/d17a4bccc3-475b4a82466f87320755.png" alt="government officials at press conference about fraud prevention">
+              </div>
+              <div class="md:w-2/3 p-6">
+                <div class="flex justify-between items-center mb-2">
+                  <span class="bg-gray-200 text-gray-800 text-xs font-medium px-2 py-1 rounded">News</span>
+                  <span class="text-xs text-gray-500">August 5, 2023</span>
+                </div>
+                <h3 class="text-xl font-bold mb-2">Government Announces £25M Investment in Anti-Fraud Measures</h3>
+                <p class="text-gray-600 mb-4">The UK Government has committed to investing £25 million in new anti-fraud measures, including enhanced support for ScamRegistry initiatives.</p>
+                <span class="text-primary hover:text-secondary font-medium cursor-pointer">Read Full Article</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Success Stories -->
+        <section id="success-stories" class="bg-light p-6 rounded-lg shadow-md mb-10">
+          <h2 class="text-2xl font-bold text-primary mb-4 font-heading">Success Stories</h2>
+          <div class="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
+            <div class="bg-white p-4 rounded-lg shadow-sm flex-1">
+              <div class="flex items-center mb-3">
+                <img src="https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-7.jpg" alt="User" class="w-12 h-12 rounded-full mr-3">
+                <div>
+                  <h4 class="font-bold">Sarah L.</h4>
+                  <p class="text-sm text-gray-500">London</p>
+                </div>
+              </div>
+              <p class="text-gray-600 text-sm italic">"Thanks to ScamRegistry's alert system, I was able to identify a sophisticated phishing attempt that nearly cost me my savings. The resources provided helped me report it properly."</p>
+            </div>
+            <div class="bg-white p-4 rounded-lg shadow-sm flex-1">
+              <div class="flex items-center mb-3">
+                <img src="https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-3.jpg" alt="User" class="w-12 h-12 rounded-full mr-3">
+                <div>
+                  <h4 class="font-bold">Michael T.</h4>
+                  <p class="text-sm text-gray-500">Manchester</p>
+                </div>
+              </div>
+              <p class="text-gray-600 text-sm italic">"I checked a suspicious investment opportunity on ScamRegistry and discovered it was a known scam. The database saved me from losing over £5,000 to fraudsters."</p>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- Sidebar -->
+      <div class="lg:col-span-1">
+        <div class="header-lower">{% include "includes/report_scam.html" %}</div>
+
+        <!-- Live Feed -->
+        <div id="live-feed" class="bg-white rounded-lg shadow-md p-6 mb-6">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-xl font-bold text-primary font-heading">Live Scam Feed</h3>
+            <span class="flex items-center text-secondary text-sm">
+              <span class="h-2 w-2 bg-secondary rounded-full mr-1 animate-pulse"></span>
+              Live
+            </span>
+          </div>
+          <div class="space-y-4 max-h-80 overflow-y-auto pr-2">
+            <div class="border-l-4 border-red-500 pl-3 py-1">
+              <p class="text-sm font-medium">Phone Scam reported in Birmingham</p>
+              <p class="text-xs text-gray-500">2 minutes ago</p>
+            </div>
+            <div class="border-l-4 border-yellow-500 pl-3 py-1">
+              <p class="text-sm font-medium">Email Phishing targeting NatWest customers</p>
+              <p class="text-xs text-gray-500">7 minutes ago</p>
+            </div>
+            <div class="border-l-4 border-blue-500 pl-3 py-1">
+              <p class="text-sm font-medium">SMS Scam claiming to be Royal Mail</p>
+              <p class="text-xs text-gray-500">12 minutes ago</p>
+            </div>
+            <div class="border-l-4 border-green-500 pl-3 py-1">
+              <p class="text-sm font-medium">Fake shopping website reported</p>
+              <p class="text-xs text-gray-500">19 minutes ago</p>
+            </div>
+            <div class="border-l-4 border-purple-500 pl-3 py-1">
+              <p class="text-sm font-medium">Investment scam on social media</p>
+              <p class="text-xs text-gray-500">24 minutes ago</p>
+            </div>
+            <div class="border-l-4 border-red-500 pl-3 py-1">
+              <p class="text-sm font-medium">Tech support scam targeting elderly</p>
+              <p class="text-xs text-gray-500">32 minutes ago</p>
+            </div>
+          </div>
         </div>
+
+        <!-- Scam Map -->
+        <div id="scam-map" class="bg-white rounded-lg shadow-md p-6 mb-6">
+          <h3 class="text-xl font-bold text-primary mb-4 font-heading">UK Scam Hotspots</h3>
+          <div class="aspect-w-1 aspect-h-1 relative h-64 bg-gray-100 rounded-md overflow-hidden">
+            <img class="absolute inset-0 w-full h-full object-cover" src="https://storage.googleapis.com/uxpilot-auth.appspot.com/bd969cf609-4869b27b94f609dc616c.png" alt="UK map with heatmap visualization showing fraud hotspots, professional data visualization">
+          </div>
+          <div class="mt-3 text-sm text-gray-600">
+            <p>Current hotspots: London, Manchester, Birmingham, Glasgow</p>
+            <span class="text-primary hover:text-secondary font-medium mt-2 inline-block cursor-pointer">View Interactive Map</span>
+          </div>
+        </div>
+
+        <!-- Resources -->
+        <div id="quick-resources" class="bg-white rounded-lg shadow-md p-6">
+          <h3 class="text-xl font-bold text-primary mb-4 font-heading">Quick Resources</h3>
+          <ul class="space-y-3">
+            <li>
+              <span class="flex items-center text-accent hover:text-secondary transition-colors cursor-pointer">
+                <i class="w-5 mr-2 text-green-500" data-fa-i2svg="">
+                  <svg class="svg-inline--fa fa-circle-check" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="circle-check" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" data-fa-i2svg=""><path fill="currentColor" d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM369 209L241 337c-9.4 9.4-24.6 9.4-33.9 0l-64-64c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l47 47L335 175c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9z"></path></svg>
+                </i>
+                <span>How to Verify Legitimate Calls</span>
+              </span>
+            </li>
+            <li>
+              <span class="flex items-center text-accent hover:text-secondary transition-colors cursor-pointer">
+                <i class="w-5 mr-2 text-green-500" data-fa-i2svg="">
+                  <svg class="svg-inline--fa fa-circle-check" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="circle-check" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" data-fa-i2svg=""><path fill="currentColor" d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM369 209L241 337c-9.4 9.4-24.6 9.4-33.9 0l-64-64c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l47 47L335 175c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9z"></path></svg>
+                </i>
+                <span>Spotting Phishing Emails</span>
+              </span>
+            </li>
+            <li>
+              <span class="flex items-center text-accent hover:text-secondary transition-colors cursor-pointer">
+                <i class="w-5 mr-2 text-green-500" data-fa-i2svg="">
+                  <svg class="svg-inline--fa fa-circle-check" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="circle-check" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" data-fa-i2svg=""><path fill="currentColor" d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM369 209L241 337c-9.4 9.4-24.6 9.4-33.9 0l-64-64c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l47 47L335 175c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9z"></path></svg>
+                </i>
+                <span>Secure Online Shopping Guide</span>
+              </span>
+            </li>
+            <li>
+              <span class="flex items-center text-accent hover:text-secondary transition-colors cursor-pointer">
+                <i class="w-5 mr-2 text-green-500" data-fa-i2svg="">
+                  <svg class="svg-inline--fa fa-circle-check" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="circle-check" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" data-fa-i2svg=""><path fill="currentColor" d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM369 209L241 337c-9.4 9.4-24.6 9.4-33.9 0l-64-64c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l47 47L335 175c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9z"></path></svg>
+                </i>
+                <span>Protecting Elderly Relatives</span>
+              </span>
+            </li>
+            <li>
+              <span class="flex items-center text-accent hover:text-secondary transition-colors cursor-pointer">
+                <i class="w-5 mr-2 text-green-500" data-fa-i2svg="">
+                  <svg class="svg-inline--fa fa-circle-check" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="circle-check" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" data-fa-i2svg=""><path fill="currentColor" d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM369 209L241 337c-9.4 9.4-24.6 9.4-33.9 0l-64-64c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l47 47L335 175c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9z"></path></svg>
+                </i>
+                <span>Recovery After Being Scammed</span>
+              </span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Partner Section -->
+  <section id="partners" class="bg-white py-10">
+    <div class="container mx-auto px-4 md:px-8">
+      <h2 class="text-2xl font-bold text-primary text-center mb-8 font-heading">Our Partners &amp; Collaborators</h2>
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 items-center">
+        <div class="flex justify-center">
+          <i class="text-5xl text-gray-400" data-fa-i2svg="">
+            <svg class="svg-inline--fa fa-building-columns" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="building-columns" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" data-fa-i2svg=""><path fill="currentColor" d="M243.4 2.6l-224 96c-14 6-21.8 21-18.7 35.8S16.8 160 32 160v8c0 13.3 10.7 24 24 24H456c13.3 0 24-10.7 24-24v-8c15.2 0 28.3-10.7 31.3-25.6s-4.8-29.9-18.7-35.8l-224-96c-8-3.4-17.2-3.4-25.2 0zM128 224H64V420.3c-.6 .3-1.2 .7-1.8 1.1l-48 32c-11.7 7.8-17 22.4-12.9 35.9S17.9 512 32 512H480c14.1 0 26.5-9.2 30.6-22.7s-1.1-28.1-12.9-35.9l-48-32c-.6-.4-1.2-.7-1.8-1.1V224H384V416H344V224H280V416H232V224H168V416H128V224zM256 64a32 32 0 1 1 0 64 32 32 0 1 1 0-64z"></path></svg>
+          </i>
+        </div>
+        <div class="flex justify-center">
+          <i class="text-5xl text-gray-400" data-fa-i2svg="">
+            <svg class="svg-inline--fa fa-shield-halved" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="shield-halved" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" data-fa-i2svg=""><path fill="currentColor" d="M256 0c4.6 0 9.2 1 13.4 2.9L457.7 82.8c22 9.3 38.4 31 38.3 57.2c-.5 99.2-41.3 280.7-213.6 363.2c-16.7 8-36.1 8-52.8 0C57.3 420.7 16.5 239.2 16 140c-.1-26.2 16.3-47.9 38.3-57.2L242.7 2.9C246.8 1 251.4 0 256 0zm0 66.8V444.8C394 378 431.1 230.1 432 141.4L256 66.8l0 0z"></path></svg>
+          </i>
+        </div>
+        <div class="flex justify-center">
+          <i class="text-5xl text-gray-400" data-fa-i2svg="">
+            <svg class="svg-inline--fa fa-landmark" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="landmark" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" data-fa-i2svg=""><path fill="currentColor" d="M240.1 4.2c9.8-5.6 21.9-5.6 31.8 0l171.8 98.1L448 104l0 .9 47.9 27.4c12.6 7.2 18.8 22 15.1 36s-16.4 23.8-30.9 23.8H32c-14.5 0-27.2-9.8-30.9-23.8s2.5-28.8 15.1-36L64 104.9V104l4.4-1.6L240.1 4.2zM64 224h64V416h40V224h64V416h48V224h64V416h40V224h64V420.3c.6 .3 1.2 .7 1.8 1.1l48 32c11.7 7.8 17 22.4 12.9 35.9S494.1 512 480 512H32c-14.1 0-26.5-9.2-30.6-22.7s-1.1-28.1-12.9-35.9l-48-32c-.6-.4-1.2-.7-1.8-1.1V224z"></path></svg>
+          </i>
+        </div>
+        <div class="flex justify-center">
+          <i class="text-5xl text-gray-400" data-fa-i2svg="">
+            <svg class="svg-inline--fa fa-gavel" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="gavel" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" data-fa-i2svg=""><path fill="currentColor" d="M318.6 9.4c-12.5-12.5-32.8-12.5-45.3 0l-120 120c-12.5 12.5-12.5 32.8 0 45.3l16 16c12.5 12.5 32.8 12.5 45.3 0l4-4L325.4 293.4l-4 4c-12.5 12.5-12.5 32.8 0 45.3l16 16c12.5 12.5 32.8 12.5 45.3 0l120-120c12.5-12.5 12.5-32.8 0-45.3l-16-16c-12.5-12.5-32.8-12.5-45.3 0l-4 4L330.6 74.6l4-4c12.5-12.5 12.5-32.8 0-45.3l-16-16zm-152 288c-12.5-12.5-32.8-12.5-45.3 0l-112 112c-12.5 12.5-12.5 32.8 0 45.3l48 48c12.5 12.5 32.8 12.5 45.3 0l112-112c12.5-12.5 12.5-32.8 0-45.3l-1.4-1.4L272 285.3 226.7 240 168 298.7l-1.4-1.4z"></path></svg>
+          </i>
+        </div>
+        <div class="flex justify-center">
+          <i class="text-5xl text-gray-400" data-fa-i2svg="">
+            <svg class="svg-inline--fa fa-building-columns" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="building-columns" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" data-fa-i2svg=""><path fill="currentColor" d="M243.4 2.6l-224 96c-14 6-21.8 21-18.7 35.8S16.8 160 32 160v8c0 13.3 10.7 24 24 24H456c13.3 0 24-10.7 24-24v-8c15.2 0 28.3-10.7 31.3-25.6s-4.8-29.9-18.7-35.8l-224-96c-8-3.4-17.2-3.4-25.2 0zM128 224H64V420.3c-.6 .3-1.2 .7-1.8 1.1l-48 32c-11.7 7.8-17 22.4-12.9 35.9S17.9 512 32 512H480c14.1 0 26.5-9.2 30.6-22.7s-1.1-28.1-12.9-35.9l-48-32c-.6-.4-1.2-.7-1.8-1.1V224H384V416H344V224H280V416H232V224H168V416H128V224zM256 64a32 32 0 1 1 0 64 32 32 0 1 1 0-64z"></path></svg>
+          </i>
+        </div>
+        <div class="flex justify-center">
+          <i class="text-5xl text-gray-400" data-fa-i2svg="">
+            <svg class="svg-inline--fa fa-scale-balanced" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="scale-balanced" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512" data-fa-i2svg=""><path fill="currentColor" d="M384 32H512c17.7 0 32 14.3 32 32s-14.3 32-32 32H398.4c-5.2 25.8-22.9 47.1-46.4 57.3V448H512c17.7 0 32 14.3 32 32s-14.3 32-32 32H320 128c-17.7 0-32-14.3-32-32s14.3-32 32-32H288V153.3c-23.5-10.3-41.2-31.6-46.4-57.3H128c-17.7 0-32-14.3-32-32s14.3-32 32-32H256c14.6-19.4 37.8-32 64-32s49.4 12.6 64 32zm55.6 288H584.4L512 195.8 439.6 320zM512 416c-62.9 0-115.2-34-126-78.9c-2.6-11 1-22.3 6.7-32.1l95.2-163.2c5-8.6 14.2-13.8 24.1-13.8s19.1 5.3 24.1 13.8l95.2 163.2c5.7 9.8 9.3 21.1 6.7 32.1C627.2 382 574.9 416 512 416zM126.8 195.8L54.4 320H199.3L126.8 195.8zM.9 337.1c-2.6-11 1-22.3 6.7-32.1l95.2-163.2c5-8.6 14.2-13.8 24.1-13.8s19.1 5.3 24.1 13.8l95.2 163.2c5.7 9.8 9.3 21.1 6.7 32.1C242 382 189.7 416 126.8 416S11.7 382 .9 337.1z"></path></svg>
+          </i>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section id="cta" class="bg-primary py-16">
+    <div class="container mx-auto px-4 md:px-8 text-center">
+      <h2 class="text-3xl font-bold text-white mb-6 font-heading">Join the Fight Against Fraud</h2>
+      <p class="text-lg text-white/80 max-w-2xl mx-auto mb-8">Help us build a safer UK by reporting scams, sharing knowledge, and staying informed. Together we can protect our communities.</p>
+      <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
+        <span class="bg-white hover:bg-gray-100 text-primary font-medium px-8 py-3 rounded-md transition-colors cursor-pointer">Report a Scam</span>
+        <span class="bg-secondary hover:bg-red-700 text-white font-medium px-8 py-3 rounded-md transition-colors cursor-pointer">Join Our Network</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer id="footer" class="bg-dark text-white">
+    <div class="container mx-auto px-4 md:px-8 py-12">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div>
+          <div class="flex items-center space-x-2 mb-4">
+            <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center">
+              <i class="text-primary text-lg" data-fa-i2svg="">
+                <svg class="svg-inline--fa fa-shield-halved" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="shield-halved" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" data-fa-i2svg=""><path fill="currentColor" d="M256 0c4.6 0 9.2 1 13.4 2.9L457.7 82.8c22 9.3 38.4 31 38.3 57.2c-.5 99.2-41.3 280.7-213.6 363.2c-16.7 8-36.1 8-52.8 0C57.3 420.7 16.5 239.2 16 140c-.1-26.2 16.3-47.9 38.3-57.2L242.7 2.9C246.8 1 251.4 0 256 0zm0 66.8V444.8C394 378 431.1 230.1 432 141.4L256 66.8l0 0z"></path></svg>
+              </i>
+            </div>
+            <div>
+              <h3 class="text-xl font-bold font-heading">ScamRegistry</h3>
+              <p class="text-xs text-gray-400">UK Central Hub for Fraud Prevention</p>
+            </div>
+          </div>
+          <p class="text-gray-400 text-sm mb-4">ScamRegistry is the UK's official central hub for scam and fraud reporting, providing tools and resources to help protect citizens.</p>
+          <div class="flex space-x-4">
+            <span class="text-gray-400 hover:text-white transition-colors cursor-pointer">
+              <i class="text-lg" data-fa-i2svg="">
+                <svg class="svg-inline--fa fa-facebook-f" aria-hidden="true" focusable="false" data-prefix="fab" data-icon="facebook-f" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512" data-fa-i2svg=""><path fill="currentColor" d="M279.14 288l14.22-92.66h-88.91v-60.13c0-25.35 12.42-50.06 52.24-50.06h40.42V6.26S260.43 0 225.36 0c-73.22 0-121.08 44.38-121.08 124.72v70.62H22.89V288h81.39v224h100.17V288z"></path></svg>
+              </i>
+            </span>
+            <span class="text-gray-400 hover:text-white transition-colors cursor-pointer">
+              <i class="text-lg" data-fa-i2svg="">
+                <svg class="svg-inline--fa fa-twitter" aria-hidden="true" focusable="false" data-prefix="fab" data-icon="twitter" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" data-fa-i2svg=""><path fill="currentColor" d="M459.37 151.716c.325 4.548.325 9.097.325 13.645 0 138.72-105.583 298.558-298.558 298.558-59.452 0-114.68-17.219-161.137-47.106 8.447.974 16.568 1.299 25.34 1.299 49.055 0 94.213-16.568 130.274-44.832-46.132-.975-84.792-31.188-98.112-72.772 6.498.974 12.995 1.624 19.818 1.624 9.421 0 18.843-1.3 27.614-3.573-48.081-9.747-84.143-51.98-84.143-102.985v-1.299c13.969 7.797 30.214 12.67 47.431 13.319-28.264-18.843-46.781-51.005-46.781-87.391 0-19.492 5.197-37.36 14.294-52.954 51.655 63.675 129.3 105.258 216.365 109.807-1.624-7.797-2.599-15.918-2.599-24.04 0-57.828 46.782-104.934 104.934-104.934 30.213 0 57.502 12.67 76.67 33.137 23.715-4.548 46.456-13.32 66.599-25.34-7.798 24.366-24.366 44.833-46.132 57.827 21.117-2.273 41.584-8.122 60.426-16.243-14.292 20.791-32.161 39.308-52.628 54.253z"></path></svg>
+              </i>
+            </span>
+            <span class="text-gray-400 hover:text-white transition-colors cursor-pointer">
+              <i class="text-lg" data-fa-i2svg="">
+                <svg class="svg-inline--fa fa-instagram" aria-hidden="true" focusable="false" data-prefix="fab" data-icon="instagram" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" data-fa-i2svg=""><path fill="currentColor" d="M224.1 141c-63.6 0-114.9 51.3-114.9 114.9s51.3 114.9 114.9 114.9S339 319.5 339 255.9 287.7 141 224.1 141zm0 189.6c-41.1 0-74.7-33.5-74.7-74.7s33.5-74.7 74.7-74.7 74.7 33.5 74.7 74.7-33.6 74.7-74.7 74.7zm146.4-194.3c0 14.9-12 26.8-26.8 26.8-14.9 0-26.8-12-26.8-26.8s12-26.8 26.8-26.8 26.8 12 26.8 26.8zm76.1 27.2c-1.7-35.9-9.9-67.7-36.2-93.9-26.2-26.2-58-34.4-93.9-36.2-37-2.1-147.9-2.1-184.9 0-35.8 1.7-67.6 9.9-93.9 36.1s-34.4 58-36.2 93.9c-2.1 37-2.1 147.9 0 184.9 1.7 35.9 9.9 67.7 36.2 93.9s58 34.4 93.9 36.2c37 2.1 147.9 2.1 184.9 0 35.9-1.7 67.7-9.9 93.9-36.2 26.2-26.2 34.4-58 36.2-93.9 2.1-37 2.1-147.8 0-184.8zM398.8 388c-7.8 19.6-22.9 34.7-42.6 42.6-29.5 11.7-99.5 9-132.1 9s-102.7 2.6-132.1-9c-19.6-7.8-34.7-22.9-42.6-42.6-11.7-29.5-9-99.5-9-132.1s-2.6-102.7 9-132.1c7.8-19.6 22.9-34.7 42.6-42.6 29.5-11.7 99.5-9 132.1-9s102.7-2.6 132.1 9c19.6 7.8 34.7 22.9 42.6 42.6 11.7 29.5 9 99.5 9 132.1z"></path></svg>
+              </i>
+            </span>
+            <span class="text-gray-400 hover:text-white transition-colors cursor-pointer">
+              <i class="text-lg" data-fa-i2svg="">
+                <svg class="svg-inline--fa fa-youtube" aria-hidden="true" focusable="false" data-prefix="fab" data-icon="youtube" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" data-fa-i2svg=""><path fill="currentColor" d="M549.655 124.083c-6.281-23.65-24.787-42.276-48.284-48.597C458.781 64 288 64 288 64S117.22 64 74.629 75.486c-23.497 6.322-42.003 24.947-48.284 48.597-11.412 42.867-11.412 132.305-11.412 132.305s0 89.438 11.412 132.305c6.281 23.65 24.787 41.5 48.284 47.821C117.22 448 288 448 288 448s170.78 0 213.371-11.486c23.497-6.321 42.003-24.171 48.284-47.821 11.412-42.867 11.412-132.305 11.412-132.305zm-317.51 213.508V175.185l142.739 81.205-142.739 81.201z"></path></svg>
+              </i>
+            </span>
+          </div>
+        </div>
+
+        <div>
+          <h4 class="text-lg font-bold mb-4 font-heading">Quick Links</h4>
+          <ul class="space-y-2">
+            <li><span class="text-gray-400 hover:text-white transition-colors cursor-pointer">Home</span></li>
+            <li><span class="text-gray-400 hover:text-white transition-colors cursor-pointer">Report a Scam</span></li>
+            <li><span class="text-gray-400 hover:text-white transition-colors cursor-pointer">Check a Scam</span></li>
+            <li><span class="text-gray-400 hover:text-white transition-colors cursor-pointer">Latest News</span></li>
+            <li><span class="text-gray-400 hover:text-white transition-colors cursor-pointer">Resources</span></li>
+            <li><span class="text-gray-400 hover:text-white transition-colors cursor-pointer">About Us</span></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="text-lg font-bold mb-4 font-heading">Scam Types</h4>
+          <ul class="space-y-2">
+            <li><span class="text-gray-400 hover:text-white transition-colors cursor-pointer">Phone Scams</span></li>
+            <li><span class="text-gray-400 hover:text-white transition-colors cursor-pointer">Email Phishing</span></li>
+            <li><span class="text-gray-400 hover:text-white transition-colors cursor-pointer">SMS Scams</span></li>
+            <li><span class="text-gray-400 hover:text-white transition-colors cursor-pointer">Banking Fraud</span></li>
+            <li><span class="text-gray-400 hover:text-white transition-colors cursor-pointer">Investment Scams</span></li>
+            <li><span class="text-gray-400 hover:text-white transition-colors cursor-pointer">Romance Scams</span></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="text-lg font-bold mb-4 font-heading">Contact Us</h4>
+          <ul class="space-y-3">
+            <li class="flex items-start">
+              <i class="mt-1 mr-3 text-gray-400" data-fa-i2svg="">
+                <svg class="svg-inline--fa fa-location-dot" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="location-dot" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" data-fa-i2svg=""><path fill="currentColor" d="M215.7 499.2C267 435 384 279.4 384 192C384 86 298 0 192 0S0 86 0 192c0 87.4 117 243 168.3 307.2c12.3 15.3 35.1 15.3 47.4 0zM192 128a64 64 0 1 1 0 128 64 64 0 1 1 0-128z"></path></svg>
+              </i>
+              <span class="text-gray-400">123 Security Street, London, UK EC1A 1BB</span>
+            </li>
+            <li class="flex items-center">
+              <i class="mr-3 text-gray-400" data-fa-i2svg="">
+                <svg class="svg-inline--fa fa-phone" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="phone" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" data-fa-i2svg=""><path fill="currentColor" d="M164.9 24.6c-7.7-18.6-28-28.5-47.4-23.2l-88 24C12.1 30.2 0 46 0 64C0 311.4 200.6 512 448 512c18 0 33.8-12.1 38.6-29.5l24-88c5.3-19.4-4.6-39.7-23.2-47.4l-96-40c-16.3-6.8-35.2-2.1-46.3 11.6L304.7 368C234.3 334.7 177.3 277.7 144 207.3L193.3 167c13.7-11.2 18.4-30 11.6-46.3l-40-96z"></path></svg>
+              </i>
+              <span class="text-gray-400">0800 XXX XXXX</span>
+            </li>
+            <li class="flex items-center">
+              <i class="mr-3 text-gray-400" data-fa-i2svg="">
+                <svg class="svg-inline--fa fa-envelope" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="envelope" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" data-fa-i2svg=""><path fill="currentColor" d="M48 64C21.5 64 0 85.5 0 112c0 15.1 7.1 29.3 19.2 38.4L236.8 313.6c11.4 8.5 27 8.5 38.4 0L492.8 150.4c12.1-9.1 19.2-23.3 19.2-38.4c0-26.5-21.5-48-48-48H48zM0 176V384c0 35.3 28.7 64 64 64H448c35.3 0 64-28.7 64-64V176L294.4 339.2c-22.8 17.1-54 17.1-76.8 0L0 176z"></path></svg>
+              </i>
+              <span class="text-gray-400">info@scamregistry.gov.uk</span>
+            </li>
+          </ul>
+          <form class="mt-4">
+            <label class="text-sm text-gray-400 mb-2 block">Subscribe to our newsletter</label>
+            <div class="flex">
+              <input type="email" placeholder="Your email" class="px-3 py-2 bg-white/10 border border-white/20 rounded-l-md text-white focus:outline-none flex-1">
+              <button type="submit" class="bg-secondary hover:bg-red-700 text-white px-4 py-2 rounded-r-md transition-colors">
+                <i data-fa-i2svg="">
+                  <svg class="svg-inline--fa fa-paper-plane" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="paper-plane" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" data-fa-i2svg=""><path fill="currentColor" d="M498.1 5.6c10.1 7 15.4 19.1 13.5 31.2l-64 416c-1.5 9.7-7.4 18.2-16 23s-18.9 5.4-28 1.6L284 427.7l-68.5 74.1c-8.9 9.7-22.9 12.9-35.2 8.1S160 493.2 160 480V396.4c0-4 1.5-7.8 4.2-10.7L331.8 202.8c5.8-6.3 5.6-16-.4-22s-15.7-6.4-22-.7L106 360.8 17.7 316.6C7.1 311.3 .3 300.7 0 288.9s5.9-22.8 16.1-28.7l448-256c10.7-6.1 23.9-5.5 34 1.4z"></path></svg>
+                </i>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
 
-    <!-- Alert Bar -->
-    <div id="alert-bar" class="bg-secondary text-white py-3">
-        <div class="container mx-auto px-4 md:px-8">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center">
-                    <i class="mr-2 text-xl" data-fa-i2svg=""><svg class="svg-inline--fa fa-circle-exclamation" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="circle-exclamation" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" data-fa-i2svg=""><path fill="currentColor" d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zm0-384c13.3 0 24 10.7 24 24V264c0 13.3-10.7 24-24 24s-24-10.7-24-24V152c0-13.3 10.7-24 24-24zM224 352a32 32 0 1 1 64 0 32 32 0 1 1 -64 0z"></path></svg></i>
-                    <p class="font-medium">{% include "includes/alerts.html" %}</p>
-
-
-                </div>
-                <span class="whitespace-nowrap underline text-sm font-medium cursor-pointer">Learn More</span>
-            </div>
+    <div class="border-t border-gray-800">
+      <div class="container mx-auto px-4 md:px-8 py-6">
+        <div class="flex flex-col md:flex-row justify-between items-center">
+          <p class="text-sm text-gray-400">© 2025 ScamRegistry. All rights reserved.</p>
+          <div class="flex space-x-6 mt-4 md:mt-0">
+            <span class="text-sm text-gray-400 hover:text-white transition-colors cursor-pointer">Privacy Policy</span>
+            <span class="text-sm text-gray-400 hover:text-white transition-colors cursor-pointer">Terms of Service</span>
+            <span class="text-sm text-gray-400 hover:text-white transition-colors cursor-pointer">Accessibility</span>
+          </div>
         </div>
+      </div>
     </div>
-
-    <!-- Main Content -->
-    <main id="main-content" class="container mx-auto px-4 md:px-8 py-8">
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <!-- Main Content Area -->
-            <div class="lg:col-span-2">
-                <!-- Latest Scam Reports Section -->
-                <section id="latest-scams" class="mb-10">
-                    <div class="flex justify-between items-center mb-6">
-                        <h2 class="text-2xl font-bold text-primary font-heading">Latest Scam Reports</h2>
-                        <span class="text-secondary hover:underline font-medium flex items-center cursor-pointer">
-                            <span>View All</span>
-                            <i class="ml-1" data-fa-i2svg=""><svg class="svg-inline--fa fa-arrow-right" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="arrow-right" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" data-fa-i2svg=""><path fill="currentColor" d="M438.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L338.8 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l306.7 0L233.4 393.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"></path></svg></i>
-                        </span>
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div id="scam-card-1" class="bg-white rounded-lg shadow-md overflow-hidden transition-transform hover:shadow-lg hover:-translate-y-1">
-                            <div class="h-48 overflow-hidden relative">
-                                <span class="absolute top-0 right-0 bg-secondary text-white text-xs font-bold px-2 py-1 rounded-bl-md">URGENT</span>
-                                <img class="w-full h-full object-cover" src="https://storage.googleapis.com/uxpilot-auth.appspot.com/67690ed580-9e2e73b8db3a7f6aba27.png" alt="phishing email scam concept with fishing hook and email">
-                            </div>
-                            <div class="p-4">
-                                <div class="flex justify-between items-center mb-2">
-                                    <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded">Email Scam</span>
-                                    <span class="text-xs text-gray-500">Reported 2 hours ago</span>
-                                </div>
-                                <h3 class="text-lg font-bold mb-2">HMRC Tax Refund Phishing Email</h3>
-                                <p class="text-gray-600 text-sm mb-3">Fraudsters impersonating HMRC are sending emails claiming recipients are eligible for a tax refund and asking for banking details.</p>
-                                <div class="flex justify-between items-center">
-                                    <span class="text-xs text-gray-500">Reports: 47</span>
-                                    <span class="text-primary hover:text-secondary font-medium text-sm cursor-pointer">Read More</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div id="scam-card-2" class="bg-white rounded-lg shadow-md overflow-hidden transition-transform hover:shadow-lg hover:-translate-y-1">
-                            <div class="h-48 overflow-hidden relative">
-                                <img class="w-full h-full object-cover" src="https://storage.googleapis.com/uxpilot-auth.appspot.com/b276383131-9a1ef089d7380e117c79.png" alt="phone scam concept with smartphone and warning signs">
-                            </div>
-                            <div class="p-4">
-                                <div class="flex justify-between items-center mb-2">
-                                    <span class="bg-red-100 text-red-800 text-xs font-medium px-2 py-1 rounded">Phone Scam</span>
-                                    <span class="text-xs text-gray-500">Reported 5 hours ago</span>
-                                </div>
-                                <h3 class="text-lg font-bold mb-2">Bank Security Department Impersonation</h3>
-                                <p class="text-gray-600 text-sm mb-3">Scammers calling from spoofed bank numbers claiming to be from security departments, asking victims to move money to "safe accounts".</p>
-                                <div class="flex justify-between items-center">
-                                    <span class="text-xs text-gray-500">Reports: 23</span>
-                                    <span class="text-primary hover:text-secondary font-medium text-sm cursor-pointer">Read More</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- Trending Scams Data Visualization -->
-                <section id="trending-scams" class="bg-white p-6 rounded-lg shadow-md mb-10">
-                    <h2 class="text-2xl font-bold text-primary mb-4 font-heading">Trending Scams</h2>
-                    <p class="text-gray-600 mb-6">Real-time analysis of the most frequently reported scams across the UK in the past 7 days.</p>
-                    <div id="scam-trends-chart" class="h-[400px]"></div>
-                    {% comment %} <script>
-                        document.addEventListener('DOMContentLoaded', function() {
-                            Highcharts.chart('scam-trends-chart', {
-                                chart: {
-                                    type: 'column'
-                                },
-                                title: {
-                                    text: null
-                                },
-                                xAxis: {
-                                    categories: ['Phone Scams', 'Email Phishing', 'SMS Scams', 'Banking Fraud', 'Investment Scams', 'Shopping Scams', 'Romance Scams']
-                                },
-                                yAxis: {
-                                    title: {
-                                        text: 'Number of Reports'
-                                    }
-                                },
-                                colors: ['#0c326f', '#e63946', '#457b9d', '#1d3557', '#a8dadc'],
-                                plotOptions: {
-                                    column: {
-                                        borderRadius: 5
-                                    }
-                                },
-                                series: [{
-                                    name: 'This Week',
-                                    data: [349, 278, 192, 167, 142, 117, 89]
-                                }, {
-                                    name: 'Last Week',
-                                    data: [321, 256, 210, 152, 128, 106, 95]
-                                }]
-                            });
-                        });
-                    </script>
-                </section> {% endcomment %}
-
-                <!-- Latest News Section -->
-                <section id="latest-news" class="mb-10">
-                    <div class="flex justify-between items-center mb-6">
-                        <h2 class="text-2xl font-bold text-primary font-heading">Latest News &amp; Updates</h2>
-                        <span class="text-secondary hover:underline font-medium flex items-center cursor-pointer">
-                            <span>View All</span>
-                            <i class="ml-1" data-fa-i2svg=""><svg class="svg-inline--fa fa-arrow-right" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="arrow-right" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" data-fa-i2svg=""><path fill="currentColor" d="M438.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L338.8 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l306.7 0L233.4 393.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"></path></svg></i>
-                        </span>
-                    </div>
-                    <div class="space-y-6">
-                        <div id="news-item-1" class="bg-white rounded-lg shadow-md overflow-hidden flex flex-col md:flex-row">
-                            <div class="md:w-1/3 h-48 md:h-auto overflow-hidden">
-                                <img class="w-full h-full object-cover" src="https://storage.googleapis.com/uxpilot-auth.appspot.com/8ba72c47a5-df0120350ece829f712d.png" alt="cybersecurity professionals working in office with multiple screens">
-                            </div>
-                            <div class="md:w-2/3 p-6">
-                                <div class="flex justify-between items-center mb-2">
-                                    <span class="bg-primary text-white text-xs font-medium px-2 py-1 rounded">Press Release</span>
-                                    <span class="text-xs text-gray-500">August 8, 2023</span>
-                                </div>
-                                <h3 class="text-xl font-bold mb-2">ScamRegistry Launches New AI-Powered Scam Detection Tool</h3>
-                                <p class="text-gray-600 mb-4">The new tool uses artificial intelligence to analyze potential scams and provide real-time warnings to users before they become victims.</p>
-                                <span class="text-primary hover:text-secondary font-medium cursor-pointer">Read Full Article</span>
-                            </div>
-                        </div>
-                        <div id="news-item-2" class="bg-white rounded-lg shadow-md overflow-hidden flex flex-col md:flex-row">
-                            <div class="md:w-1/3 h-48 md:h-auto overflow-hidden">
-                                <img class="w-full h-full object-cover" src="https://storage.googleapis.com/uxpilot-auth.appspot.com/d17a4bccc3-475b4a82466f87320755.png" alt="government officials at press conference about fraud prevention">
-                            </div>
-                            <div class="md:w-2/3 p-6">
-                                <div class="flex justify-between items-center mb-2">
-                                    <span class="bg-gray-200 text-gray-800 text-xs font-medium px-2 py-1 rounded">News</span>
-                                    <span class="text-xs text-gray-500">August 5, 2023</span>
-                                </div>
-                                <h3 class="text-xl font-bold mb-2">Government Announces £25M Investment in Anti-Fraud Measures</h3>
-                                <p class="text-gray-600 mb-4">The UK Government has committed to investing £25 million in new anti-fraud measures, including enhanced support for ScamRegistry initiatives.</p>
-                                <span class="text-primary hover:text-secondary font-medium cursor-pointer">Read Full Article</span>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- Success Stories -->
-                <section id="success-stories" class="bg-light p-6 rounded-lg shadow-md mb-10">
-                    <h2 class="text-2xl font-bold text-primary mb-4 font-heading">Success Stories</h2>
-                    <div class="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
-                        <div class="bg-white p-4 rounded-lg shadow-sm flex-1">
-                            <div class="flex items-center mb-3">
-                                <img src="https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-7.jpg" alt="User" class="w-12 h-12 rounded-full mr-3">
-                                <div>
-                                    <h4 class="font-bold">Sarah L.</h4>
-                                    <p class="text-sm text-gray-500">London</p>
-                                </div>
-                            </div>
-                            <p class="text-gray-600 text-sm italic">"Thanks to ScamRegistry's alert system, I was able to identify a sophisticated phishing attempt that nearly cost me my savings. The resources provided helped me report it properly."</p>
-                        </div>
-                        <div class="bg-white p-4 rounded-lg shadow-sm flex-1">
-                            <div class="flex items-center mb-3">
-                                <img src="https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-3.jpg" alt="User" class="w-12 h-12 rounded-full mr-3">
-                                <div>
-                                    <h4 class="font-bold">Michael T.</h4>
-                                    <p class="text-sm text-gray-500">Manchester</p>
-                                </div>
-                            </div>
-                            <p class="text-gray-600 text-sm italic">"I checked a suspicious investment opportunity on ScamRegistry and discovered it was a known scam. The database saved me from losing over £5,000 to fraudsters."</p>
-                        </div>
-                    </div>
-                </section>
-            </div>
-
-            <!-- Sidebar -->
-            <div class="lg:col-span-1">
-
-                    <div class="header-lower">{% include "includes/report_scam.html" %}</div>
-
-
-                <!-- Live Feed -->
-                <div id="live-feed" class="bg-white rounded-lg shadow-md p-6 mb-6">
-                    <div class="flex items-center justify-between mb-4">
-                        <h3 class="text-xl font-bold text-primary font-heading">Live Scam Feed</h3>
-                        <span class="flex items-center text-secondary text-sm">
-                            <span class="h-2 w-2 bg-secondary rounded-full mr-1 animate-pulse"></span>
-                            Live
-                        </span>
-                    </div>
-                    <div class="space-y-4 max-h-80 overflow-y-auto pr-2">
-                        <div class="border-l-4 border-red-500 pl-3 py-1">
-                            <p class="text-sm font-medium">Phone Scam reported in Birmingham</p>
-                            <p class="text-xs text-gray-500">2 minutes ago</p>
-                        </div>
-                        <div class="border-l-4 border-yellow-500 pl-3 py-1">
-                            <p class="text-sm font-medium">Email Phishing targeting NatWest customers</p>
-                            <p class="text-xs text-gray-500">7 minutes ago</p>
-                        </div>
-                        <div class="border-l-4 border-blue-500 pl-3 py-1">
-                            <p class="text-sm font-medium">SMS Scam claiming to be Royal Mail</p>
-                            <p class="text-xs text-gray-500">12 minutes ago</p>
-                        </div>
-                        <div class="border-l-4 border-green-500 pl-3 py-1">
-                            <p class="text-sm font-medium">Fake shopping website reported</p>
-                            <p class="text-xs text-gray-500">19 minutes ago</p>
-                        </div>
-                        <div class="border-l-4 border-purple-500 pl-3 py-1">
-                            <p class="text-sm font-medium">Investment scam on social media</p>
-                            <p class="text-xs text-gray-500">24 minutes ago</p>
-                        </div>
-                        <div class="border-l-4 border-red-500 pl-3 py-1">
-                            <p class="text-sm font-medium">Tech support scam targeting elderly</p>
-                            <p class="text-xs text-gray-500">32 minutes ago</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Scam Map -->
-                <div id="scam-map" class="bg-white rounded-lg shadow-md p-6 mb-6">
-                    <h3 class="text-xl font-bold text-primary mb-4 font-heading">UK Scam Hotspots</h3>
-                    <div class="aspect-w-1 aspect-h-1 relative h-64 bg-gray-100 rounded-md overflow-hidden">
-                        <img class="absolute inset-0 w-full h-full object-cover" src="https://storage.googleapis.com/uxpilot-auth.appspot.com/bd969cf609-4869b27b94f609dc616c.png" alt="UK map with heatmap visualization showing fraud hotspots, professional data visualization">
-                    </div>
-                    <div class="mt-3 text-sm text-gray-600">
-                        <p>Current hotspots: London, Manchester, Birmingham, Glasgow</p>
-                        <span class="text-primary hover:text-secondary font-medium mt-2 inline-block cursor-pointer">View Interactive Map</span>
-                    </div>
-                </div>
-
-                <!-- Resources -->
-                <div id="quick-resources" class="bg-white rounded-lg shadow-md p-6">
-                    <h3 class="text-xl font-bold text-primary mb-4 font-heading">Quick Resources</h3>
-                    <ul class="space-y-3">
-                        <li>
-                            <span class="flex items-center text-accent hover:text-secondary transition-colors cursor-pointer">
-                                <i class="w-5 mr-2 text-green-500" data-fa-i2svg=""><svg class="svg-inline--fa fa-circle-check" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="circle-check" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" data-fa-i2svg=""><path fill="currentColor" d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM369 209L241 337c-9.4 9.4-24.6 9.4-33.9 0l-64-64c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l47 47L335 175c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9z"></path></svg></i>
-                                <span>How to Verify Legitimate Calls</span>
-                            </span>
-                        </li>
-                        <li>
-                            <span class="flex items-center text-accent hover:text-secondary transition-colors cursor-pointer">
-                                <i class="w-5 mr-2 text-green-500" data-fa-i2svg=""><svg class="svg-inline--fa fa-circle-check" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="circle-check" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" data-fa-i2svg=""><path fill="currentColor" d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM369 209L241 337c-9.4 9.4-24.6 9.4-33.9 0l-64-64c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l47 47L335 175c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9z"></path></svg></i>
-                                <span>Spotting Phishing Emails</span>
-                            </span>
-                        </li>
-                        <li>
-                            <span class="flex items-center text-accent hover:text-secondary transition-colors cursor-pointer">
-                                <i class="w-5 mr-2 text-green-500" data-fa-i2svg=""><svg class="svg-inline--fa fa-circle-check" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="circle-check" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" data-fa-i2svg=""><path fill="currentColor" d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM369 209L241 337c-9.4 9.4-24.6 9.4-33.9 0l-64-64c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l47 47L335 175c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9z"></path></svg></i>
-                                <span>Secure Online Shopping Guide</span>
-                            </span>
-                        </li>
-                        <li>
-                            <span class="flex items-center text-accent hover:text-secondary transition-colors cursor-pointer">
-                                <i class="w-5 mr-2 text-green-500" data-fa-i2svg=""><svg class="svg-inline--fa fa-circle-check" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="circle-check" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" data-fa-i2svg=""><path fill="currentColor" d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM369 209L241 337c-9.4 9.4-24.6 9.4-33.9 0l-64-64c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l47 47L335 175c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9z"></path></svg></i>
-                                <span>Protecting Elderly Relatives</span>
-                            </span>
-                        </li>
-                        <li>
-                            <span class="flex items-center text-accent hover:text-secondary transition-colors cursor-pointer">
-                                <i class="w-5 mr-2 text-green-500" data-fa-i2svg=""><svg class="svg-inline--fa fa-circle-check" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="circle-check" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" data-fa-i2svg=""><path fill="currentColor" d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM369 209L241 337c-9.4 9.4-24.6 9.4-33.9 0l-64-64c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l47 47L335 175c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9z"></path></svg></i>
-                                <span>Recovery After Being Scammed</span>
-                            </span>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </main>
-
-    <!-- Partner Section -->
-    <section id="partners" class="bg-white py-10">
-        <div class="container mx-auto px-4 md:px-8">
-            <h2 class="text-2xl font-bold text-primary text-center mb-8 font-heading">Our Partners &amp; Collaborators</h2>
-            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 items-center">
-                <div class="flex justify-center">
-                    <i class="text-5xl text-gray-400" data-fa-i2svg=""><svg class="svg-inline--fa fa-building-columns" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="building-columns" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" data-fa-i2svg=""><path fill="currentColor" d="M243.4 2.6l-224 96c-14 6-21.8 21-18.7 35.8S16.8 160 32 160v8c0 13.3 10.7 24 24 24H456c13.3 0 24-10.7 24-24v-8c15.2 0 28.3-10.7 31.3-25.6s-4.8-29.9-18.7-35.8l-224-96c-8-3.4-17.2-3.4-25.2 0zM128 224H64V420.3c-.6 .3-1.2 .7-1.8 1.1l-48 32c-11.7 7.8-17 22.4-12.9 35.9S17.9 512 32 512H480c14.1 0 26.5-9.2 30.6-22.7s-1.1-28.1-12.9-35.9l-48-32c-.6-.4-1.2-.7-1.8-1.1V224H384V416H344V224H280V416H232V224H168V416H128V224zM256 64a32 32 0 1 1 0 64 32 32 0 1 1 0-64z"></path></svg></i>
-                </div>
-                <div class="flex justify-center">
-                    <i class="text-5xl text-gray-400" data-fa-i2svg=""><svg class="svg-inline--fa fa-shield-halved" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="shield-halved" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" data-fa-i2svg=""><path fill="currentColor" d="M256 0c4.6 0 9.2 1 13.4 2.9L457.7 82.8c22 9.3 38.4 31 38.3 57.2c-.5 99.2-41.3 280.7-213.6 363.2c-16.7 8-36.1 8-52.8 0C57.3 420.7 16.5 239.2 16 140c-.1-26.2 16.3-47.9 38.3-57.2L242.7 2.9C246.8 1 251.4 0 256 0zm0 66.8V444.8C394 378 431.1 230.1 432 141.4L256 66.8l0 0z"></path></svg></i>
-                </div>
-                <div class="flex justify-center">
-                    <i class="text-5xl text-gray-400" data-fa-i2svg=""><svg class="svg-inline--fa fa-landmark" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="landmark" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" data-fa-i2svg=""><path fill="currentColor" d="M240.1 4.2c9.8-5.6 21.9-5.6 31.8 0l171.8 98.1L448 104l0 .9 47.9 27.4c12.6 7.2 18.8 22 15.1 36s-16.4 23.8-30.9 23.8H32c-14.5 0-27.2-9.8-30.9-23.8s2.5-28.8 15.1-36L64 104.9V104l4.4-1.6L240.1 4.2zM64 224h64V416h40V224h64V416h48V224h64V416h40V224h64V420.3c.6 .3 1.2 .7 1.8 1.1l48 32c11.7 7.8 17 22.4 12.9 35.9S494.1 512 480 512H32c-14.1 0-26.5-9.2-30.6-22.7s1.1-28.1 12.9-35.9l48-32c.6-.4 1.2-.7 1.8-1.1V224z"></path></svg></i>
-                </div>
-                <div class="flex justify-center">
-                    <i class="text-5xl text-gray-400" data-fa-i2svg=""><svg class="svg-inline--fa fa-gavel" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="gavel" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" data-fa-i2svg=""><path fill="currentColor" d="M318.6 9.4c-12.5-12.5-32.8-12.5-45.3 0l-120 120c-12.5 12.5-12.5 32.8 0 45.3l16 16c12.5 12.5 32.8 12.5 45.3 0l4-4L325.4 293.4l-4 4c-12.5 12.5-12.5 32.8 0 45.3l16 16c12.5 12.5 32.8 12.5 45.3 0l120-120c12.5-12.5 12.5-32.8 0-45.3l-16-16c-12.5-12.5-32.8-12.5-45.3 0l-4 4L330.6 74.6l4-4c12.5-12.5 12.5-32.8 0-45.3l-16-16zm-152 288c-12.5-12.5-32.8-12.5-45.3 0l-112 112c-12.5 12.5-12.5 32.8 0 45.3l48 48c12.5 12.5 32.8 12.5 45.3 0l112-112c12.5-12.5 12.5-32.8 0-45.3l-1.4-1.4L272 285.3 226.7 240 168 298.7l-1.4-1.4z"></path></svg></i>
-                </div>
-                <div class="flex justify-center">
-                    <i class="text-5xl text-gray-400" data-fa-i2svg=""><svg class="svg-inline--fa fa-building-columns" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="building-columns" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" data-fa-i2svg=""><path fill="currentColor" d="M243.4 2.6l-224 96c-14 6-21.8 21-18.7 35.8S16.8 160 32 160v8c0 13.3 10.7 24 24 24H456c13.3 0 24-10.7 24-24v-8c15.2 0 28.3-10.7 31.3-25.6s-4.8-29.9-18.7-35.8l-224-96c-8-3.4-17.2-3.4-25.2 0zM128 224H64V420.3c-.6 .3-1.2 .7-1.8 1.1l-48 32c-11.7 7.8-17 22.4-12.9 35.9S17.9 512 32 512H480c14.1 0 26.5-9.2 30.6-22.7s-1.1-28.1-12.9-35.9l-48-32c-.6-.4-1.2-.7-1.8-1.1V224H384V416H344V224H280V416H232V224H168V416H128V224zM256 64a32 32 0 1 1 0 64 32 32 0 1 1 0-64z"></path></svg></i>
-                </div>
-                <div class="flex justify-center">
-                    <i class="text-5xl text-gray-400" data-fa-i2svg=""><svg class="svg-inline--fa fa-scale-balanced" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="scale-balanced" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512" data-fa-i2svg=""><path fill="currentColor" d="M384 32H512c17.7 0 32 14.3 32 32s-14.3 32-32 32H398.4c-5.2 25.8-22.9 47.1-46.4 57.3V448H512c17.7 0 32 14.3 32 32s-14.3 32-32 32H320 128c-17.7 0-32-14.3-32-32s14.3-32 32-32H288V153.3c-23.5-10.3-41.2-31.6-46.4-57.3H128c-17.7 0-32-14.3-32-32s14.3-32 32-32H256c14.6-19.4 37.8-32 64-32s49.4 12.6 64 32zm55.6 288H584.4L512 195.8 439.6 320zM512 416c-62.9 0-115.2-34-126-78.9c-2.6-11 1-22.3 6.7-32.1l95.2-163.2c5-8.6 14.2-13.8 24.1-13.8s19.1 5.3 24.1 13.8l95.2 163.2c5.7 9.8 9.3 21.1 6.7 32.1C627.2 382 574.9 416 512 416zM126.8 195.8L54.4 320H199.3L126.8 195.8zM.9 337.1c-2.6-11 1-22.3 6.7-32.1l95.2-163.2c5-8.6 14.2-13.8 24.1-13.8s19.1 5.3 24.1 13.8l95.2 163.2c5.7 9.8 9.3 21.1 6.7 32.1C242 382 189.7 416 126.8 416S11.7 382 .9 337.1z"></path></svg></i>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- CTA Section -->
-    <section id="cta" class="bg-primary py-16">
-        <div class="container mx-auto px-4 md:px-8 text-center">
-            <h2 class="text-3xl font-bold text-white mb-6 font-heading">Join the Fight Against Fraud</h2>
-            <p class="text-lg text-white/80 max-w-2xl mx-auto mb-8">Help us build a safer UK by reporting scams, sharing knowledge, and staying informed. Together we can protect our communities.</p>
-            <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
-                <span class="bg-white hover:bg-gray-100 text-primary font-medium px-8 py-3 rounded-md transition-colors cursor-pointer">
-                    Report a Scam
-                </span>
-                <span class="bg-secondary hover:bg-red-700 text-white font-medium px-8 py-3 rounded-md transition-colors cursor-pointer">
-                    Join Our Network
-                </span>
-            </div>
-        </div>
-    </section>
-
-    <!-- Footer -->
-    <footer id="footer" class="bg-dark text-white">
-        <div class="container mx-auto px-4 md:px-8 py-12">
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                <div>
-                    <div class="flex items-center space-x-2 mb-4">
-                        <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center">
-                            <i class="text-primary text-lg" data-fa-i2svg=""><svg class="svg-inline--fa fa-shield-halved" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="shield-halved" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" data-fa-i2svg=""><path fill="currentColor" d="M256 0c4.6 0 9.2 1 13.4 2.9L457.7 82.8c22 9.3 38.4 31 38.3 57.2c-.5 99.2-41.3 280.7-213.6 363.2c-16.7 8-36.1 8-52.8 0C57.3 420.7 16.5 239.2 16 140c-.1-26.2 16.3-47.9 38.3-57.2L242.7 2.9C246.8 1 251.4 0 256 0zm0 66.8V444.8C394 378 431.1 230.1 432 141.4L256 66.8l0 0z"></path></svg></i>
-                        </div>
-                        <div>
-                            <h3 class="text-xl font-bold font-heading">ScamRegistry</h3>
-                            <p class="text-xs text-gray-400">UK Central Hub for Fraud Prevention</p>
-                        </div>
-                    </div>
-                    <p class="text-gray-400 text-sm mb-4">ScamRegistry is the UK's official central hub for scam and fraud reporting, providing tools and resources to help protect citizens.</p>
-                    <div class="flex space-x-4">
-                        <span class="text-gray-400 hover:text-white transition-colors cursor-pointer">
-                            <i class="text-lg" data-fa-i2svg=""><svg class="svg-inline--fa fa-facebook-f" aria-hidden="true" focusable="false" data-prefix="fab" data-icon="facebook-f" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512" data-fa-i2svg=""><path fill="currentColor" d="M279.14 288l14.22-92.66h-88.91v-60.13c0-25.35 12.42-50.06 52.24-50.06h40.42V6.26S260.43 0 225.36 0c-73.22 0-121.08 44.38-121.08 124.72v70.62H22.89V288h81.39v224h100.17V288z"></path></svg></i>
-                        </span>
-                        <span class="text-gray-400 hover:text-white transition-colors cursor-pointer">
-                            <i class="text-lg" data-fa-i2svg=""><svg class="svg-inline--fa fa-twitter" aria-hidden="true" focusable="false" data-prefix="fab" data-icon="twitter" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" data-fa-i2svg=""><path fill="currentColor" d="M459.37 151.716c.325 4.548.325 9.097.325 13.645 0 138.72-105.583 298.558-298.558 298.558-59.452 0-114.68-17.219-161.137-47.106 8.447.974 16.568 1.299 25.34 1.299 49.055 0 94.213-16.568 130.274-44.832-46.132-.975-84.792-31.188-98.112-72.772 6.498.974 12.995 1.624 19.818 1.624 9.421 0 18.843-1.3 27.614-3.573-48.081-9.747-84.143-51.98-84.143-102.985v-1.299c13.969 7.797 30.214 12.67 47.431 13.319-28.264-18.843-46.781-51.005-46.781-87.391 0-19.492 5.197-37.36 14.294-52.954 51.655 63.675 129.3 105.258 216.365 109.807-1.624-7.797-2.599-15.918-2.599-24.04 0-57.828 46.782-104.934 104.934-104.934 30.213 0 57.502 12.67 76.67 33.137 23.715-4.548 46.456-13.32 66.599-25.34-7.798 24.366-24.366 44.833-46.132 57.827 21.117-2.273 41.584-8.122 60.426-16.243-14.292 20.791-32.161 39.308-52.628 54.253z"></path></svg></i>
-                        </span>
-                        <span class="text-gray-400 hover:text-white transition-colors cursor-pointer">
-                            <i class="text-lg" data-fa-i2svg=""><svg class="svg-inline--fa fa-instagram" aria-hidden="true" focusable="false" data-prefix="fab" data-icon="instagram" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" data-fa-i2svg=""><path fill="currentColor" d="M224.1 141c-63.6 0-114.9 51.3-114.9 114.9s51.3 114.9 114.9 114.9S339 319.5 339 255.9 287.7 141 224.1 141zm0 189.6c-41.1 0-74.7-33.5-74.7-74.7s33.5-74.7 74.7-74.7 74.7 33.5 74.7 74.7-33.6 74.7-74.7 74.7zm146.4-194.3c0 14.9-12 26.8-26.8 26.8-14.9 0-26.8-12-26.8-26.8s12-26.8 26.8-26.8 26.8 12 26.8 26.8zm76.1 27.2c-1.7-35.9-9.9-67.7-36.2-93.9-26.2-26.2-58-34.4-93.9-36.2-37-2.1-147.9-2.1-184.9 0-35.8 1.7-67.6 9.9-93.9 36.1s-34.4 58-36.2 93.9c-2.1 37-2.1 147.9 0 184.9 1.7 35.9 9.9 67.7 36.2 93.9s58 34.4 93.9 36.2c37 2.1 147.9 2.1 184.9 0 35.9-1.7 67.7-9.9 93.9-36.2 26.2-26.2 34.4-58 36.2-93.9 2.1-37 2.1-147.8 0-184.8zM398.8 388c-7.8 19.6-22.9 34.7-42.6 42.6-29.5 11.7-99.5 9-132.1 9s-102.7 2.6-132.1-9c-19.6-7.8-34.7-22.9-42.6-42.6-11.7-29.5-9-99.5-9-132.1s-2.6-102.7 9-132.1c7.8-19.6 22.9-34.7 42.6-42.6 29.5-11.7 99.5-9 132.1-9s102.7-2.6 132.1 9c19.6 7.8 34.7 22.9 42.6 42.6 11.7 29.5 9 99.5 9 132.1s2.7 102.7-9 132.1z"></path></svg></i>
-                        </span>
-                        <span class="text-gray-400 hover:text-white transition-colors cursor-pointer">
-                            <i class="text-lg" data-fa-i2svg=""><svg class="svg-inline--fa fa-youtube" aria-hidden="true" focusable="false" data-prefix="fab" data-icon="youtube" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" data-fa-i2svg=""><path fill="currentColor" d="M549.655 124.083c-6.281-23.65-24.787-42.276-48.284-48.597C458.781 64 288 64 288 64S117.22 64 74.629 75.486c-23.497 6.322-42.003 24.947-48.284 48.597-11.412 42.867-11.412 132.305-11.412 132.305s0 89.438 11.412 132.305c6.281 23.65 24.787 41.5 48.284 47.821C117.22 448 288 448 288 448s170.78 0 213.371-11.486c23.497-6.321 42.003-24.171 48.284-47.821 11.412-42.867 11.412-132.305 11.412-132.305s0-89.438-11.412-132.305zm-317.51 213.508V175.185l142.739 81.205-142.739 81.201z"></path></svg></i>
-                        </span>
-                    </div>
-                </div>
-                <div>
-                    <h4 class="text-lg font-bold mb-4 font-heading">Quick Links</h4>
-                    <ul class="space-y-2">
-                        <li><span class="text-gray-400 hover:text-white transition-colors cursor-pointer">Home</span></li>
-                        <li><span class="text-gray-400 hover:text-white transition-colors cursor-pointer">Report a Scam</span></li>
-                        <li><span class="text-gray-400 hover:text-white transition-colors cursor-pointer">Check a Scam</span></li>
-                        <li><span class="text-gray-400 hover:text-white transition-colors cursor-pointer">Latest News</span></li>
-                        <li><span class="text-gray-400 hover:text-white transition-colors cursor-pointer">Resources</span></li>
-                        <li><span class="text-gray-400 hover:text-white transition-colors cursor-pointer">About Us</span></li>
-                    </ul>
-                </div>
-                <div>
-                    <h4 class="text-lg font-bold mb-4 font-heading">Scam Types</h4>
-                    <ul class="space-y-2">
-                        <li><span class="text-gray-400 hover:text-white transition-colors cursor-pointer">Phone Scams</span></li>
-                        <li><span class="text-gray-400 hover:text-white transition-colors cursor-pointer">Email Phishing</span></li>
-                        <li><span class="text-gray-400 hover:text-white transition-colors cursor-pointer">SMS Scams</span></li>
-                        <li><span class="text-gray-400 hover:text-white transition-colors cursor-pointer">Banking Fraud</span></li>
-                        <li><span class="text-gray-400 hover:text-white transition-colors cursor-pointer">Investment Scams</span></li>
-                        <li><span class="text-gray-400 hover:text-white transition-colors cursor-pointer">Romance Scams</span></li>
-                    </ul>
-                </div>
-                <div>
-                    <h4 class="text-lg font-bold mb-4 font-heading">Contact Us</h4>
-                    <ul class="space-y-3">
-                        <li class="flex items-start">
-                            <i class="mt-1 mr-3 text-gray-400" data-fa-i2svg=""><svg class="svg-inline--fa fa-location-dot" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="location-dot" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" data-fa-i2svg=""><path fill="currentColor" d="M215.7 499.2C267 435 384 279.4 384 192C384 86 298 0 192 0S0 86 0 192c0 87.4 117 243 168.3 307.2c12.3 15.3 35.1 15.3 47.4 0zM192 128a64 64 0 1 1 0 128 64 64 0 1 1 0-128z"></path></svg></i>
-                            <span class="text-gray-400">123 Security Street, London, UK EC1A 1BB</span>
-                        </li>
-                        <li class="flex items-center">
-                            <i class="mr-3 text-gray-400" data-fa-i2svg=""><svg class="svg-inline--fa fa-phone" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="phone" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" data-fa-i2svg=""><path fill="currentColor" d="M164.9 24.6c-7.7-18.6-28-28.5-47.4-23.2l-88 24C12.1 30.2 0 46 0 64C0 311.4 200.6 512 448 512c18 0 33.8-12.1 38.6-29.5l24-88c5.3-19.4-4.6-39.7-23.2-47.4l-96-40c-16.3-6.8-35.2-2.1-46.3 11.6L304.7 368C234.3 334.7 177.3 277.7 144 207.3L193.3 167c13.7-11.2 18.4-30 11.6-46.3l-40-96z"></path></svg></i>
-                            <span class="text-gray-400">0800 123 4567</span>
-                        </li>
-                        <li class="flex items-center">
-                            <i class="mr-3 text-gray-400" data-fa-i2svg=""><svg class="svg-inline--fa fa-envelope" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="envelope" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" data-fa-i2svg=""><path fill="currentColor" d="M48 64C21.5 64 0 85.5 0 112c0 15.1 7.1 29.3 19.2 38.4L236.8 313.6c11.4 8.5 27 8.5 38.4 0L492.8 150.4c12.1-9.1 19.2-23.3 19.2-38.4c0-26.5-21.5-48-48-48H48zM0 176V384c0 35.3 28.7 64 64 64H448c35.3 0 64-28.7 64-64V176L294.4 339.2c-22.8 17.1-54 17.1-76.8 0L0 176z"></path></svg></i>
-                            <span class="text-gray-400">info@scamregistry.gov.uk</span>
-                        </li>
-                    </ul>
-                    <form class="mt-4">
-                        <label class="text-sm text-gray-400 mb-2 block">Subscribe to our newsletter</label>
-                        <div class="flex">
-                            <input type="email" placeholder="Your email" class="px-3 py-2 bg-white/10 border border-white/20 rounded-l-md text-white focus:outline-none flex-1">
-                            <button type="submit" class="bg-secondary hover:bg-red-700 text-white px-4 py-2 rounded-r-md transition-colors">
-                                <i data-fa-i2svg=""><svg class="svg-inline--fa fa-paper-plane" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="paper-plane" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" data-fa-i2svg=""><path fill="currentColor" d="M498.1 5.6c10.1 7 15.4 19.1 13.5 31.2l-64 416c-1.5 9.7-7.4 18.2-16 23s-18.9 5.4-28 1.6L284 427.7l-68.5 74.1c-8.9 9.7-22.9 12.9-35.2 8.1S160 493.2 160 480V396.4c0-4 1.5-7.8 4.2-10.7L331.8 202.8c5.8-6.3 5.6-16-.4-22s-15.7-6.4-22-.7L106 360.8 17.7 316.6C7.1 311.3 .3 300.7 0 288.9s5.9-22.8 16.1-28.7l448-256c10.7-6.1 23.9-5.5 34 1.4z"></path></svg></i>
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-        <div class="border-t border-gray-800">
-            <div class="container mx-auto px-4 md:px-8 py-6">
-                <div class="flex flex-col md:flex-row justify-between items-center">
-                    <p class="text-sm text-gray-400">© 2025 ScamRegistry. All rights reserved.</p>
-                    <div class="flex space-x-6 mt-4 md:mt-0">
-                        <span class="text-sm text-gray-400 hover:text-white transition-colors cursor-pointer">Privacy Policy</span>
-                        <span class="text-sm text-gray-400 hover:text-white transition-colors cursor-pointer">Terms of Service</span>
-                        <span class="text-sm text-gray-400 hover:text-white transition-colors cursor-pointer">Accessibility</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </footer>
-
-</body></html>
+  </footer>
+</body>
+</html>
