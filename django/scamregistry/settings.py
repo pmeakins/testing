@@ -38,6 +38,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'v1',
+    'tailwind',
+    'theme',
+
 ]
 
 # Template DIR config
@@ -65,8 +68,8 @@ TEMPLATES = [
     {
 
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        # 'DIRS': [],
-        'DIRS': [BASE_DIR / 'v1' / 'templates'],
+        'DIRS': [],
+        # 'DIRS': [BASE_DIR / 'v1' / 'templates'],
         # "DIRS": [BASE_DIR / "website"],
         # "DIRS": [BASE_DIR / "website" / "templates"],
 
@@ -127,9 +130,17 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = 'static/'
-
+# STATICFILES_DIRS = [
+#     BASE_DIR / "static",
+#     "/v1/",
+# ]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Tailwind
+TAILWIND_APP_NAME = 'theme'
+
+ACTIVE_APP = "v1"
