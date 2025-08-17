@@ -4,27 +4,30 @@ from pathlib import Path
 import requests
 from bs4 import BeautifulSoup
 import time, random
+import yaml
+import random
 
 
-
-
-
-
-
-
-
-
+import random  # Add this import
 
 def base(request):
-    logical_path = f"{settings.ACTIVE_APP}/static/data/alert.txt"
-    text_file_path = Path(logical_path)
+    yaml_path = Path(settings.BASE_DIR) / settings.ACTIVE_APP / "static" / "data" / "alerts.yaml"
+
+    alerts = []
+    error = None
+
     try:
-        with open(text_file_path, "r", encoding="utf-8") as f:
-            report_text = f.read()
+        with open(yaml_path, "r", encoding="utf-8") as f:
+            data = yaml.safe_load(f) or []
+            if isinstance(data, dict) and "alerts" in data:
+                alerts = data["alerts"]
+            elif isinstance(data, list):
+                alerts = data
+        alerts = [str(x).strip() for x in alerts if str(x).strip()]
+        random.shuffle(alerts)  # <- Shuffle the list in place
     except FileNotFoundError:
-        report_text = "[Report text file missing]"
+        error = "[alerts.yaml missing]"
+    except yaml.YAMLError as e:
+        error = f"[YAML error: {e}]"
 
-    # leaderboard_data = fetch_leaderboard()
-
-    # return render(request, "base/base.html", {"report_text": report_text}, {"leaderboard_data": leaderboard_data})
-    return render(request, "base/base.html", {"report_text": report_text})
+    return render(request, "base/base.html", {"alerts": alerts, "alerts_error": error})
