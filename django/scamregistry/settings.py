@@ -23,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-$#bxcp*&kt_pg=9mywy&q53fa%r+%&x4utm80n&1v2g$e--x5n'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 #ALLOWED_HOSTS = ["scamregistry.co.uk", "www.scamregistry.co.uk", "localhost", "127.0.0.1"]
 ALLOWED_HOSTS = ["*"]
@@ -44,12 +44,6 @@ INSTALLED_APPS = [
 
 # Template DIR config
 
-
-# Static files config
-STATICFILES_DIRS = [BASE_DIR / "static"]
-# STATICFILES_DIRS = [BASE_DIR / "website" / "templates" / "static"]
-
-
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -59,8 +53,6 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
-
 
 ROOT_URLCONF = 'scamregistry.urls'
 
@@ -130,10 +122,17 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = 'static/'
-STATICFILES_DIRS = [
-    BASE_DIR / "/v1/" / "static",
-]
+# STATIC_URL = "/static/"
+# STATIC_ROOT = BASE_DIR / "staticfiles"   # where collectstatic puts files
+# STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+# STATICFILES_DIRS = [
+#     BASE_DIR / "v1" / "static",          # source dir (your app's static)
+#     BASE_DIR / "theme" / "static",       # (optional) theme’s static if you use it
+# ]
+STATIC_URL = "/static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"        # collectstatic target
+STATICFILES_DIRS = [BASE_DIR / "v1" / "static"]  # source (no leading slash)
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
