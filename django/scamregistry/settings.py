@@ -46,6 +46,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -121,17 +122,16 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
+# Static settings (you already have these)
+STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_DIRS = [
+    BASE_DIR / 'v1' / 'static',
+    BASE_DIR / 'theme' / 'static',  # only if it exists
+]
 
-# STATIC_URL = "/static/"
-# STATIC_ROOT = BASE_DIR / "staticfiles"   # where collectstatic puts files
-# STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
-# STATICFILES_DIRS = [
-#     BASE_DIR / "v1" / "static",          # source dir (your app's static)
-#     BASE_DIR / "theme" / "static",       # (optional) theme’s static if you use it
-# ]
-STATIC_URL = "/static/"
-STATIC_ROOT = BASE_DIR / "staticfiles"        # collectstatic target
-STATICFILES_DIRS = [BASE_DIR / "v1" / "static"]  # source (no leading slash)
+# Recommended for WhiteNoise in prod
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 
 # Default primary key field type
