@@ -298,8 +298,112 @@
         <!-- Trending Scams Data Visualization -->
         <section id="trending-scams" class="bg-white p-6 rounded-lg shadow-md mb-10">
           <h2 class="text-2xl font-bold text-primary mb-4 font-heading">Trending Scams</h2>
-          <p class="text-gray-600 mb-6">Real-time analysis of the most frequently reported scams across the UK in the past 7 days.</p>
-          <div id="scam-trends-chart" class="h-[400px]"></div>
+          {% comment %} <p class="text-gray-600 mb-6">Real-time analysis of the most frequently reported scams across the UK in the past 7 days.</p> {% endcomment %}
+          <p class="text-gray-600 mb-6">Scams across the UK in the past 7 days.</p>
+
+          <section class="mx-auto max-w-6xl px-4 py-8">
+
+  <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+    <!-- 1. Car loan compensation scam -->
+    <article class="rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition">
+      <div class="p-5">
+        <div class="mb-3 flex flex-wrap gap-2">
+          <span class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium">Compensation scam</span>
+          <span class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium">Phone/Text</span>
+        </div>
+        <h3 class="text-lg font-semibold leading-snug">
+          <a href="https://www.theguardian.com/money/2025/aug/17/now-fraudsters-are-trying-to-mis-sell-you-a-car-loan-payout" target="_blank" rel="noopener">Fraudsters mis-selling fake car-loan payouts</a>
+        </h3>
+        <p class="mt-2 text-sm text-gray-700">
+          Criminals pose as finance firms offering “mis-sold” car loan compensation and attempt to harvest personal data or fees.
+        </p>
+        <p class="mt-3 text-xs text-gray-500">Source: The Guardian</p>
+      </div>
+    </article>
+
+    <!-- 2. AI impersonation (Billy Connolly) -->
+    <article class="rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition">
+      <div class="p-5">
+        <div class="mb-3 flex flex-wrap gap-2">
+          <span class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium">Impersonation</span>
+          <span class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium">AI/Deepfake</span>
+        </div>
+        <h3 class="text-lg font-semibold leading-snug">
+          <a href="https://www.thetimes.co.uk/article/ai-scammers-impersonating-billy-connolly-to-extort-fans-tq7k8fxr2" target="_blank" rel="noopener">AI scammers impersonate Sir Billy Connolly</a>
+        </h3>
+        <p class="mt-2 text-sm text-gray-700">
+          Fake profiles and AI-generated media lure fans into paying for bogus merchandise and “meet-and-greets”.
+        </p>
+        <p class="mt-3 text-xs text-gray-500">Source: The Times</p>
+      </div>
+    </article>
+
+    <!-- 3. Fake Oasis tickets -->
+    <article class="rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition">
+      <div class="p-5">
+        <div class="mb-3 flex flex-wrap gap-2">
+          <span class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium">Ticket fraud</span>
+          <span class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium">Social Media</span>
+        </div>
+        <h3 class="text-lg font-semibold leading-snug">
+          <a href="https://www.thescottishsun.co.uk/news/15208665/oasis-scam-probe-launched-glasgow-mum/" target="_blank" rel="noopener">Probe into fake Oasis reunion tickets</a>
+        </h3>
+        <p class="mt-2 text-sm text-gray-700">
+          Fans report paying hundreds via Snapchat for tickets that never arrived as police launch a fraud investigation.
+        </p>
+        <p class="mt-3 text-xs text-gray-500">Source: The Scottish Sun</p>
+      </div>
+    </article>
+
+    <!-- 4. UK scam hotspots -->
+    <article class="rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition">
+      <div class="p-5">
+        <div class="mb-3 flex flex-wrap gap-2">
+          <span class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium">Trend report</span>
+          <span class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium">Nationwide</span>
+        </div>
+        <h3 class="text-lg font-semibold leading-snug">
+          <a href="https://www.thesun.co.uk/news/36302296/uk-scam-hotspots-fraud-map/" target="_blank" rel="noopener">Map reveals UK’s top scam hotspots</a>
+        </h3>
+        <p class="mt-2 text-sm text-gray-700">
+          Survey lists regions most targeted by scammers, with common losses and low recovery rates.
+        </p>
+        <p class="mt-3 text-xs text-gray-500">Source: The Sun</p>
+      </div>
+    </article>
+
+    <!-- 5. HMRC phishing arrests -->
+    <article class="rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition">
+      <div class="p-5">
+        <div class="mb-3 flex flex-wrap gap-2">
+          <span class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium">Phishing</span>
+          <span class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium">Tax/Benefits</span>
+        </div>
+        <h3 class="text-lg font-semibold leading-snug">
+          <a href="https://www.itpro.com/security/cyber-crime/arrests-made-after-huge-hmrc-scam-campaign-hit-100-000-accounts" target="_blank" rel="noopener">Arrests after massive HMRC scam campaign</a>
+        </h3>
+        <p class="mt-2 text-sm text-gray-700">
+          Coordinated operation targets phishing ring accused of compromising thousands of taxpayer accounts.
+        </p>
+        <p class="mt-3 text-xs text-gray-500">Source: ITPro</p>
+      </div>
+    </article>
+  </div>
+
+  <!-- Optional: CTA row -->
+  <div class="mt-8 flex flex-wrap items-center justify-between gap-4">
+    <a href="/report" class="inline-flex items-center rounded-xl bg-black px-4 py-2 text-white hover:opacity-90">
+      Report a scam
+    </a>
+    <a href="/safety" class="text-sm underline">How to spot and avoid scams</a>
+  </div>
+</section>
+
+
+
+
+
+          {% comment %} <div id="scam-trends-chart" class="h-[400px]"></div> {% endcomment %}
           {% comment %}
           <script>
             document.addEventListener('DOMContentLoaded', function() {
@@ -339,7 +443,7 @@
               <div class="md:w-2/3 p-6">
                 <div class="flex justify-between items-center mb-2">
                   <span class="bg-primary text-white text-xs font-medium px-2 py-1 rounded">Press Release</span>
-                  <span class="text-xs text-gray-500">August 8, 2023</span>
+                  <span class="text-xs text-gray-500">August 17, 2025</span>
                 </div>
                 <h3 class="text-xl font-bold mb-2">ScamRegistry Launches New AI-Powered Scam Detection Tool</h3>
                 <p class="text-gray-600 mb-4">The new tool uses artificial intelligence to analyze potential scams and provide real-time warnings to users before they become victims.</p>
@@ -349,15 +453,15 @@
 
             <div id="news-item-2" class="bg-white rounded-lg shadow-md overflow-hidden flex flex-col md:flex-row">
               <div class="md:w-1/3 h-48 md:h-auto overflow-hidden">
-                <img class="w-full h-full object-cover" src="https://storage.googleapis.com/uxpilot-auth.appspot.com/d17a4bccc3-475b4a82466f87320755.png" alt="government officials at press conference about fraud prevention">
+                <img class="w-full h-full object-cover" src="https://assets.publishing.service.gov.uk/media/66fe47ac3b919067bb482b52/s300_dsit_govuk.png" alt="government officials at press conference about fraud prevention">
               </div>
               <div class="md:w-2/3 p-6">
                 <div class="flex justify-between items-center mb-2">
                   <span class="bg-gray-200 text-gray-800 text-xs font-medium px-2 py-1 rounded">News</span>
-                  <span class="text-xs text-gray-500">August 5, 2023</span>
+                  <span class="text-xs text-gray-500">June 18, 2025</span>
                 </div>
-                <h3 class="text-xl font-bold mb-2">Government Announces £25M Investment in Anti-Fraud Measures</h3>
-                <p class="text-gray-600 mb-4">The UK Government has committed to investing £25 million in new anti-fraud measures, including enhanced support for ScamRegistry initiatives.</p>
+                <h3 class="text-xl font-bold mb-2">New plans to supercharge UK cyber sector</h3>
+                <p class="text-gray-600 mb-4">The UK’s growing cyber security sector will be boosted by millions in new investment and a new Cyber Growth Action Plan, as part of the government’s Plan for Change.</p>
                 <span class="text-primary hover:text-secondary font-medium cursor-pointer">Read Full Article</span>
               </div>
             </div>
