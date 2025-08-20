@@ -1,0 +1,87 @@
+  {% load static %}
+
+  <header id="header" class="bg-white shadow-md">
+
+    <div class="container mx-auto px-4 md:px-8">
+      <div class="flex justify-between items-center py-4">
+        <div class="flex items-center space-x-2">
+          <div class="w-12 h-12 bg-primary rounded-full flex items-center justify-center">
+            <i class="text-white text-xl" data-fa-i2svg="">
+                <i class="fa-solid fa-user-shield"></i>
+            </i>
+          </div>
+          <div>
+            <a href="/"><img src="{% static 'images/scamlogo.png' %}" class="h-9" alt="ScamRegistry"></a>
+            <p class="text-xs text-gray-500">UK Central Hub for Scam/Fraud Prevention</p>
+          </div>
+        </div>
+
+        <div class="hidden lg:flex items-center space-x-6">
+          <span class="flex items-center space-x-1 text-accent hover:text-secondary font-medium transition-colors cursor-pointer">
+
+                <i class="fa-solid fa-house-circle-check">
+              <svg class="svg-inline--fa fa-house" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="house" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" data-fa-i2svg=""><path fill="currentColor" ></path></svg>
+            </i>
+            <span>Home</span>
+          </span>
+
+          <div class="relative group">
+            <span class="flex items-center space-x-1 text-accent hover:text-secondary font-medium transition-colors cursor-pointer">
+            <i class="fa-solid fa-triangle-exclamation">
+                    <svg class="svg-inline--fa fa-triangle-exclamation" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="triangle-exclamation" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" data-fa-i2svg=""><path fill="currentColor" ></path></svg>
+              </i>
+              <span>Scams</span>
+              <i class="fa-solid fa-arrow-turn-down"></i>
+            </span>
+            <div class="absolute left-0 mt-2 w-48 bg-white shadow-lg rounded-md overflow-hidden z-10 hidden group-hover:block">
+              <span class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer">Phone Scams</span>
+              <span class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer">Email Scams</span>
+              <span class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer">Online Scams</span>
+              <span class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer">Banking Scams</span>
+              <span class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer">More...</span>
+            </div>
+          </div>
+
+          <span class="flex items-center space-x-1 text-accent hover:text-secondary font-medium transition-colors cursor-pointer">
+<i class="fa-solid fa-bullhorn"></i>
+            <span>Report</span>
+          </span>
+          <span class="flex items-center space-x-1 text-accent hover:text-secondary font-medium transition-colors cursor-pointer">
+
+            <i class="fa-solid fa-newspaper">
+            </i>
+            <span>News</span>
+          </span>
+          <span class="flex items-center space-x-1 text-accent hover:text-secondary font-medium transition-colors cursor-pointer">
+<i class="fa-solid fa-book-atlas"></i>
+            <span>Resources</span>
+          </span>
+          <span class="flex items-center space-x-1 text-accent hover:text-secondary font-medium transition-colors cursor-pointer">
+
+                <i class="fas fa-wrench"></i>
+            <span>Tools</span>
+          </span>
+        </div>
+
+        <div class="flex items-center space-x-4">
+          <div class="relative">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+
+            <input type="text" placeholder="Search..." class="pl-10 pr-4 py-2 rounded-full text-sm border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent w-40 md:w-60">
+
+            <i class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" data-fa-i2svg="">
+              <svg class="svg-inline--fa fa-magnifying-glass" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="magnifying-glass" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" data-fa-i2svg=""><path fill="currentColor" ></path></svg>
+            </i>
+          </div>
+          <button class="lg:hidden text-gray-600">
+            <i class="text-xl" data-fa-i2svg="">
+              <svg class="svg-inline--fa fa-bars" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="bars" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" data-fa-i2svg=""><path fill="currentColor" ></path></svg>
+            </i>
+          </button>
+        </div>
+
+
+
+      </div>
+    </div>
+  </header>

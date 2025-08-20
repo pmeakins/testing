@@ -1,0 +1,11 @@
+    {% load static %}
+       <div id="scam-map" class="bg-white rounded-lg shadow-md p-6 mb-6">
+          <h3 class="text-xl font-bold text-primary mb-4 font-heading">UK Scam Hotspots</h3>
+          <div class="aspect-w-1 aspect-h-1 relative h-64 bg-gray-100 rounded-md overflow-hidden">
+            <img class="absolute inset-0 w-full h-full object-cover" src="{% static 'images/scam_map.png' %}" alt="UK map with heatmap visualization showing fraud hotspots, professional data visualization">
+          </div>
+          <div class="mt-3 text-sm text-gray-600">
+            <p>Current hotspots: London, Manchester, Birmingham, Glasgow</p>
+            <span class="text-primary hover:text-secondary font-medium mt-2 inline-block cursor-pointer">View Interactive Map</span>
+          </div>
+        </div>
