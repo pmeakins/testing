@@ -1,0 +1,137 @@
+#!/usr/bin/env python3
+"""
+ipstack_tester.py — quick tester for ipstack Standard / Bulk / Requester endpoints.
+
+Examples
+--------
+# Standard lookup (single IP)
+python ipstack_tester.py 134.201.250.155 --pretty
+
+# Bulk lookup (comma or space separated; automatically batches <=50 per call)
+python ipstack_tester.py 134.201.250.155 72.229.28.185 110.174.165.78 --pretty
+
+# Requester lookup (detects your caller IP)
+python ipstack_tester.py check --pretty
+
+# Include hostname + security module (requires plan that supports it)
+python ipstack_tester.py 134.201.250.155 --hostname --security --pretty
+
+Auth
+----
+export IPSTACK_ACCESS_KEY="YOUR_KEY"   # or pass --key
+
+Notes
+-----
+- Free plan often **blocks HTTPS**; this script tries HTTPS first then falls back to HTTP on error code 105.
+- Optional params supported: --hostname, --security, --language, --fields
+"""
+import os
+import sys
+import json
+import argparse
+import itertools
+import requests
+
+HOST = "api.ipstack.com"       # per docs
+TIMEOUT = 15
+
+def parse_args():
+    ap = argparse.ArgumentParser(description="Test ipstack API")
+    ap.add_argument("targets", nargs="+",
+                    help="'check' OR one or more IPs/domains (bulk supported)")
+    ap.add_argument("--key", help="ipstack access_key (overrides IPSTACK_ACCESS_KEY)")
+    ap.add_argument("--hostname", action="store_true", help="Add hostname=1")
+    ap.add_argument("--security", action="store_true", help="Add security=1 (plan required)")
+    ap.add_argument("--language", help="2-letter language code (e.g., en, de, fr)")
+    ap.add_argument("--fields", help="Comma-separated fields filter (e.g., main or country_code,city)")
+    ap.add_argument("--http", action="store_true", help="Force HTTP (useful on free plan)")
+    ap.add_argument("--pretty", action="store_true", help="Pretty-print JSON")
+    return ap.parse_args()
+
+def chunked(iterable, n):
+    it = iter(iterable)
+    while True:
+        block = list(itertools.islice(it, n))
+        if not block:
+            return
+        yield block
+
+def make_params(args):
+    params = {}
+    if args.hostname:
+        params["hostname"] = 1
+    if args.security:
+        params["security"] = 1
+    if args.language:
+        params["language"] = args.language
+    if args.fields:
+        params["fields"] = args.fields
+    return params
+
+def do_call(path: str, params: dict, access_key: str, force_http: bool = False) -> dict:
+    """
+    Try HTTPS first (unless --http), fall back to HTTP if we see ipstack error 105.
+    """
+    params = dict(params)  # copy
+    params["access_key"] = access_key
+
+    schemes = ["http"] if force_http else ["https", "http"]  # try https then http
+    last = None
+    for scheme in schemes:
+        url = f"{scheme}://{HOST}/{path}"
+        try:
+            r = requests.get(url, params=params, timeout=TIMEOUT)
+        except requests.RequestException as e:
+            last = {"endpoint": url, "http_status": None, "error": str(e)}
+            continue
+
+        data = safe_json(r)
+        # ipstack returns {"success": false, "error": {"code":105, "type":"https_access_restricted", ...}}
+        if scheme == "https" and isinstance(data, dict) and data.get("success") is False:
+            err = (data.get("error") or {})
+            if str(err.get("code")) == "105" or err.get("type") == "https_access_restricted":
+                last = {"endpoint": url, "http_status": r.status_code, "data": data, "note": "HTTPS blocked; retrying over HTTP"}
+                continue  # try HTTP next
+
+        return {
+            "endpoint": url,
+            "http_status": r.status_code,
+            "headers": dict(r.headers),
+            "data": data
+        }
+    return last or {"error": "No response"}
+
+def safe_json(resp: requests.Response):
+    try:
+        return resp.json()
+    except Exception:
+        return {"_raw": resp.text}
+
+def main():
+    args = parse_args()
+    key = args.key or os.getenv("IPSTACK_ACCESS_KEY")
+    if not key:
+        print("ERROR: set IPSTACK_ACCESS_KEY or pass --key", file=sys.stderr)
+        sys.exit(2)
+
+    params = make_params(args)
+
+    # Special "check" endpoint
+    if len(args.targets) == 1 and args.targets[0].lower() == "check":
+        result = do_call("check", params, key, force_http=args.http)
+        print(json.dumps(result, indent=2 if args.pretty else None, ensure_ascii=False))
+        return
+
+    # Bulk: ipstack allows up to 50 IPs/domains per call
+    outputs = []
+    for batch in chunked(args.targets, 50):
+        path = ",".join(batch)
+        outputs.append(do_call(path, params, key, force_http=args.http))
+
+    print(json.dumps({
+        "batches": outputs
+    }, indent=2 if args.pretty else None, ensure_ascii=False))
+
+if __name__ == "__main__":
+    main()
+

@@ -1,0 +1,42 @@
+# add near the imports
+import os
+
+IPINFO_BASE = "https://ipinfo.io"  # requires token for reliable JSON
+
+def ipinfo_lookup(ip: str) -> dict:
+    #token = os.getenv("IPINFO_TOKEN")
+    token = "a54cb5eb25a2d2'
+    if not token:
+        return {"error": "IPINFO_TOKEN not set"}
+    r = requests.get(f"{IPINFO_BASE}/{ip}/json", params={"token": token}, timeout=10)
+    r.raise_for_status()
+    j = r.json()
+    # j.get("loc") is "lat,lon"
+    lat, lon = (None, None)
+    if isinstance(j.get("loc"), str) and "," in j["loc"]:
+        lat_s, lon_s = j["loc"].split(",", 1)
+        try:
+            lat, lon = float(lat_s), float(lon_s)
+        except ValueError:
+            pass
+    return {
+        "ip": ip,
+        "country": j.get("country"),
+        "region": j.get("region"),
+        "city": j.get("city"),
+        "lat": lat,
+        "lon": lon,
+        "asn": j.get("asn", {}).get("asn") if isinstance(j.get("asn"), dict) else None,
+        "as_org": j.get("asn", {}).get("name") if isinstance(j.get("asn"), dict) else None,
+        "org": j.get("org"),
+        "raw": j,
+    }
+
+def compare_geo(a: dict, b: dict) -> dict:
+    def norm(x): return (x or "").strip().upper()
+    diff = {}
+    for k in ("country", "region", "city"):
+        if norm(a.get(k)) and norm(b.get(k)) and norm(a.get(k)) != norm(b.get(k)):
+            diff[k] = {"whoisxml": a.get(k), "ipinfo": b.get(k)}
+    return diff
+

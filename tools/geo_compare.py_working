@@ -1,0 +1,347 @@
+#!/usr/bin/env python3
+"""
+geo_compare.py — Enrich a domain/IP using WhoisXML IP Geolocation and ipinfo.io
+Outputs a single JSON document suitable for Jinja templating.
+
+Features:
+- Input can be a domain or IP.
+- DNS resolve A/AAAA for domains.
+- WhoisXML IP Geolocation (reverseIp optional).
+- Optional ipinfo.io cross-check for location/ASN.
+- PTR/RDNS lookup for human sanity-checks.
+- Flags discrepancies between providers (country/region/city/coords).
+- Includes full 'raw' API payloads under each provider.
+
+Setup
+-----
+pip install requests dnspython
+
+Add API keys either here (preferred for quick start) or via env vars:
+  WHOISXML_API_KEY, IPINFO_TOKEN
+
+Usage
+-----
+python geo_compare.py example.com
+python geo_compare.py 176.32.230.47
+"""
+
+import os
+import re
+import sys
+import json
+import math
+import ipaddress
+from typing import Dict, Any, List, Optional, Tuple
+
+import requests
+import dns.resolver
+import dns.reversename
+import dns.exception
+
+# ──────────────────────────────────────────────────────────────────────────────
+# 🔑 API KEYS (set them here, or leave empty to fall back to environment vars)
+WHOISXML_API_KEY: str = ""  # or set env WHOISXML_API_KEY
+IPINFO_TOKEN: str = ""      # or set env IPINFO_TOKEN
+
+# Provider endpoints & settings
+WHOISXML_BASE = "https://ip-geolocation.whoisxmlapi.com/api/v1"
+IPINFO_BASE = "https://ipinfo.io"
+REVERSE_IP = True          # set False to skip reverse-IP domains from WhoisXML
+TIMEOUT = 15
+
+# ──────────────────────────────────────────────────────────────────────────────
+def get_api_key(name: str, local_value: str) -> Optional[str]:
+    if local_value:
+        return local_value
+    return os.getenv(name)
+
+def is_ip(q: str) -> bool:
+    try:
+        ipaddress.ip_address(q)
+        return True
+    except ValueError:
+        return False
+
+def resolve_dns(domain: str) -> Dict[str, List[str]]:
+    res = dns.resolver.Resolver()
+    res.lifetime = 6.0
+    res.timeout = 6.0
+    out = {"A": [], "AAAA": []}
+    for rr in ("A", "AAAA"):
+        try:
+            answers = res.resolve(domain, rr)
+            out[rr] = [r.to_text().split()[0] for r in answers]
+        except Exception:
+            out[rr] = []
+    return out
+
+def rdns_ptr(ip: str) -> Optional[str]:
+    try:
+        rev = dns.reversename.from_address(ip)
+        ans = dns.resolver.resolve(rev, "PTR", lifetime=5.0)
+        # pick first PTR
+        if ans:
+            return ans[0].to_text().rstrip(".")
+    except dns.exception.DNSException:
+        pass
+    return None
+
+# ───────────────── WHOISXML ─────────────────
+def whoisxml_lookup_ip(api_key: str, ip: str, reverse_ip: bool = True) -> Dict[str, Any]:
+    params = {
+        "apiKey": api_key,
+        "ipAddress": ip,
+        "reverseIp": 1 if reverse_ip else 0,
+        "outputFormat": "JSON",
+    }
+    r = requests.get(WHOISXML_BASE, params=params, timeout=TIMEOUT)
+    r.raise_for_status()
+    return r.json()
+
+def whoisxml_lookup_domain(api_key: str, domain: str) -> Dict[str, Any]:
+    params = {"apiKey": api_key, "domain": domain, "outputFormat": "JSON"}
+    r = requests.get(WHOISXML_BASE, params=params, timeout=TIMEOUT)
+    r.raise_for_status()
+    return r.json()
+
+def summarize_whoisxml(p: Dict[str, Any]) -> Dict[str, Any]:
+    # WhoisXML payloads vary depending on inputs; map common fields defensively.
+    loc = p.get("location", {}) if isinstance(p.get("location"), dict) else {}
+    conn = p.get("connection", {}) if isinstance(p.get("connection"), dict) else {}
+    asn = p.get("asn", {}) if isinstance(p.get("asn"), dict) else {}
+
+    country = (
+        loc.get("country", {}).get("name")
+        if isinstance(loc.get("country"), dict)
+        else loc.get("country")
+    )
+    country_code = (
+        loc.get("country", {}).get("code")
+        if isinstance(loc.get("country"), dict)
+        else loc.get("countryCode")
+    )
+
+    # reverseIp domains list (if enabled)
+    rev_domains = None
+    if isinstance(p.get("reverseIp"), dict):
+        rev_domains = p["reverseIp"].get("domains")
+    elif "domains" in p and isinstance(p["domains"], list):
+        rev_domains = p["domains"]
+
+    return {
+        "ip": p.get("ip") or p.get("ipAddress"),
+        "domain": p.get("domain"),
+        "continent": (loc.get("continent", {}) or {}).get("name") if isinstance(loc.get("continent"), dict) else None,
+        "country": country,
+        "country_code": country_code,
+        "region": loc.get("region") or loc.get("stateProv"),
+        "city": loc.get("city"),
+        "postal_code": loc.get("postalCode") or loc.get("zipCode"),
+        "lat": loc.get("lat") or loc.get("latitude"),
+        "lon": loc.get("lng") or loc.get("longitude"),
+        "timezone": loc.get("timeZone") or loc.get("timezone"),
+        "isp": conn.get("isp") or p.get("isp"),
+        "org": conn.get("organization") or p.get("organization"),
+        "connection_type": conn.get("connectionType") or p.get("connectionType"),
+        "asn": asn.get("asn") if isinstance(asn, dict) else p.get("asn"),
+        "as_org": asn.get("name") if isinstance(asn, dict) else p.get("asName"),
+        "reverse_domains": rev_domains,
+        "raw": p,
+    }
+
+# ───────────────── IPINFO ─────────────────
+def ipinfo_lookup(token: Optional[str], ip: str) -> Dict[str, Any]:
+    if not token:
+        return {"error": "IPINFO_TOKEN not set", "ip": ip}
+    r = requests.get(f"{IPINFO_BASE}/{ip}/json", params={"token": token}, timeout=10)
+    r.raise_for_status()
+    j = r.json()
+
+    lat = lon = None
+    if isinstance(j.get("loc"), str) and "," in j["loc"]:
+        try:
+            lat_s, lon_s = j["loc"].split(",", 1)
+            lat, lon = float(lat_s), float(lon_s)
+        except ValueError:
+            pass
+
+    # Parse ASN from the 'org' string if present, e.g. "AS20738 Heart Internet Ltd"
+    asn, as_org = None, None
+    if isinstance(j.get("org"), str):
+        m = re.match(r"AS(\d+)\s+(.+)", j["org"])
+        if m:
+            asn = m.group(1)
+            as_org = m.group(2)
+
+    # Some paid plans return nested 'asn' object; prefer that if present
+    if isinstance(j.get("asn"), dict):
+        asn = j["asn"].get("asn") or asn
+        as_org = j["asn"].get("name") or as_org
+
+    return {
+        "ip": ip,
+        "country": j.get("country"),
+        "region": j.get("region"),
+        "city": j.get("city"),
+        "lat": lat,
+        "lon": lon,
+        "org": j.get("org"),
+        "asn": asn,
+        "as_org": as_org,
+        "timezone": j.get("timezone"),
+        "raw": j,
+    }
+
+# ─────────────── comparison / utils ───────────────
+def norm(s: Optional[str]) -> str:
+    return (s or "").strip().upper()
+
+def haversine_km(lat1: Optional[float], lon1: Optional[float],
+                 lat2: Optional[float], lon2: Optional[float]) -> Optional[float]:
+    if lat1 is None or lon1 is None or lat2 is None or lon2 is None:
+        return None
+    R = 6371.0088
+    p1, p2 = math.radians(lat1), math.radians(lat2)
+    dphi = math.radians(lat2 - lat1)
+    dlmb = math.radians(lon2 - lon1)
+    a = math.sin(dphi/2)**2 + math.cos(p1)*math.cos(p2)*math.sin(dlmb/2)**2
+    return 2 * R * math.asin(math.sqrt(a))
+
+def compare_geo(wx: Dict[str, Any], ii: Dict[str, Any]) -> Dict[str, Any]:
+    if "error" in ii:
+        return {"note": ii["error"]}
+
+    diffs = {}
+    for k in ("country", "region", "city"):
+        a, b = norm(wx.get(k)), norm(ii.get(k))
+        if a and b and a != b:
+            diffs[k] = {"whoisxml": wx.get(k), "ipinfo": ii.get(k)}
+
+    # Coordinate distance (km) if both providers returned coords
+    d_km = haversine_km(wx.get("lat"), wx.get("lon"), ii.get("lat"), ii.get("lon"))
+    if d_km is not None:
+        diffs["coord_distance_km"] = round(d_km, 1)
+
+    # ASN/org differences (best-effort)
+    if (wx.get("asn") and ii.get("asn") and str(wx["asn"]) != str(ii["asn"])) \
+       or (wx.get("as_org") and ii.get("as_org") and norm(wx["as_org"]) != norm(ii["as_org"])):
+        diffs["asn"] = {"whoisxml": {"asn": wx.get("asn"), "as_org": wx.get("as_org")},
+                        "ipinfo":   {"asn": ii.get("asn"), "as_org": ii.get("as_org")}}
+
+    return diffs
+
+# ─────────────── main flow ───────────────
+def build_ip_entry(ip: str, wx_api_key: str, ipinfo_token: Optional[str]) -> Dict[str, Any]:
+    entry: Dict[str, Any] = {"ip": ip}
+
+    # RDNS first (fast & useful)
+    entry["rdns"] = rdns_ptr(ip)
+
+    # WhoisXML
+    try:
+        wx_raw = whoisxml_lookup_ip(wx_api_key, ip, reverse_ip=REVERSE_IP)
+        wx = summarize_whoisxml(wx_raw)
+    except requests.HTTPError as e:
+        entry["providers"] = {
+            "whoisxml": {"error": f"HTTP {e.response.status_code}", "raw": e.response.text[:500]}
+        }
+        # Still try ipinfo to provide something
+        ii = ipinfo_lookup(ipinfo_token, ip)
+        entry.setdefault("providers", {})["ipinfo"] = ii
+        entry["discrepancies"] = compare_geo({"country": None}, ii) if "error" not in ii else {"note": ii["error"]}
+        return entry
+    except Exception as e:
+        entry["providers"] = {"whoisxml": {"error": str(e)}}
+        ii = ipinfo_lookup(ipinfo_token, ip)
+        entry.setdefault("providers", {})["ipinfo"] = ii
+        entry["discrepancies"] = compare_geo({"country": None}, ii) if "error" not in ii else {"note": ii["error"]}
+        return entry
+
+    # ipinfo
+    ii = ipinfo_lookup(ipinfo_token, ip)
+
+    # Discrepancies
+    diffs = compare_geo(wx, ii)
+
+    entry["providers"] = {"whoisxml": wx, "ipinfo": ii}
+    entry["discrepancies"] = diffs
+
+    # A lightweight "headline" consensus (country/region/city):
+    headline = {
+        "country": wx.get("country"),
+        "region": wx.get("region"),
+        "city": wx.get("city"),
+        "lat": wx.get("lat"),
+        "lon": wx.get("lon"),
+        "source": "whoisxml",
+    }
+    # Prefer ipinfo if country differs AND rdns looks UK-ish or ASNs disagree
+    rdns = (entry.get("rdns") or "").lower()
+    rdns_uk_hint = any(s in rdns for s in (".uk", ".co.uk", ".ac.uk", ".gov.uk"))
+    country_diff = "country" in diffs
+    asn_diff = "asn" in diffs
+    if not isinstance(ii, dict) or "error" in ii:
+        pass
+    elif country_diff and (rdns_uk_hint or asn_diff):
+        headline.update({
+            "country": ii.get("country"),
+            "region": ii.get("region"),
+            "city": ii.get("city"),
+            "lat": ii.get("lat"),
+            "lon": ii.get("lon"),
+            "source": "ipinfo"
+        })
+
+    entry["headline_location"] = headline
+    return entry
+
+def main():
+    if len(sys.argv) != 2:
+        print("Usage: python geo_compare.py <domain-or-ip>", file=sys.stderr)
+        sys.exit(1)
+
+    query = sys.argv[1].strip().lower()
+    wx_key = get_api_key("WHOISXML_API_KEY", WHOISXML_API_KEY)
+    if not wx_key:
+        print("Please set WHOISXML_API_KEY (variable at top or env var).", file=sys.stderr)
+        sys.exit(2)
+    ipinfo_token = get_api_key("IPINFO_TOKEN", IPINFO_TOKEN)  # optional
+
+    result: Dict[str, Any] = {
+        "input_query": query,
+        "is_ip": is_ip(query),
+        "dns": {"A": [], "AAAA": []},
+        "lookups": [],
+        "domain_lookup_used": False,
+    }
+
+    ips: List[str] = []
+    if result["is_ip"]:
+        ips = [query]
+    else:
+        result["dns"] = resolve_dns(query)
+        ips = sorted(set(result["dns"]["A"] + result["dns"]["AAAA"]))
+
+    if ips:
+        for ip in ips:
+            entry = build_ip_entry(ip, wx_key, ipinfo_token)
+            result["lookups"].append(entry)
+    else:
+        # No A/AAAA: try WhoisXML domain lookup as a fallback
+        try:
+            p = whoisxml_lookup_domain(wx_key, query)
+            wx = summarize_whoisxml(p)
+            result["lookups"].append({
+                "domain": query,
+                "providers": {"whoisxml": wx},  # domain-based record
+                "note": "domain-based geolocation used (no A/AAAA)",
+            })
+            result["domain_lookup_used"] = True
+        except Exception as e:
+            result["lookups"].append({"domain": query, "error": f"domain lookup failed: {e}"})
+
+    print(json.dumps(result, indent=2, ensure_ascii=False))
+
+if __name__ == "__main__":
+    main()
+

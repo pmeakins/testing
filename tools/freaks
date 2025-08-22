@@ -1,0 +1,301 @@
+#!/usr/bin/env python3
+"""
+wf_probe.py — Domain/IP enrichment via WhoisFreaks (WHOIS + IP-WHOIS + Geo)
+Outputs a single JSON blob suitable for Jinja templating.
+
+Requires:
+  pip install requests dnspython
+
+Auth:
+  - Set WHOISFREAKS_API_KEY below, or export WHOISFREAKS_API_KEY="..."
+Usage:
+  python wf_probe.py example.com
+  python wf_probe.py 8.8.8.8
+"""
+
+import os
+import re
+import sys
+import json
+import ipaddress
+from typing import Any, Dict, List, Optional, Tuple
+
+import requests
+import dns.resolver
+import dns.reversename
+import dns.exception
+
+# ──────────────────────────────────────────────────────────────────────────────
+# 🔑 API key: set here, or leave empty to use env var WHOISFREAKS_API_KEY
+WHOISFREAKS_API_KEY: str = ""   # e.g. "wf_xxx..."  (or set env WHOISFREAKS_API_KEY)
+
+# Endpoints (per docs):
+WF_WHOIS_URL       = "https://api.whoisfreaks.com/v1.0/whois"
+WF_IP_WHOIS_URL    = "https://api.whoisfreaks.com/v1.0/ip-whois"
+WF_GEO_URL         = "https://api.whoisfreaks.com/v1.0/geolocation"
+
+TIMEOUT = 20
+HEADERS = {"User-Agent": "wf-probe/1.0", "Accept": "application/json"}
+
+# ──────────────────────────────────────────────────────────────────────────────
+def get_api_key() -> str:
+    return WHOISFREAKS_API_KEY or os.getenv("WHOISFREAKS_API_KEY") or ""
+
+def is_ip(q: str) -> bool:
+    try:
+        ipaddress.ip_address(q)
+        return True
+    except ValueError:
+        return False
+
+def resolve_dns(domain: str) -> Dict[str, List[str]]:
+    res = dns.resolver.Resolver()
+    res.lifetime = 6.0
+    res.timeout = 6.0
+    out = {"A": [], "AAAA": [], "MX": [], "NS": []}
+    for rr in ("A", "AAAA", "MX", "NS"):
+        try:
+            answers = res.resolve(domain, rr)
+            if rr == "MX":
+                out[rr] = [r.exchange.to_text().rstrip(".") for r in answers]
+            else:
+                out[rr] = [r.to_text().split()[0].rstrip(".") for r in answers]
+        except Exception:
+            out[rr] = []
+    return out
+
+def rdns_ptr(ip: str) -> Optional[str]:
+    try:
+        rev = dns.reversename.from_address(ip)
+        ans = dns.resolver.resolve(rev, "PTR", lifetime=5.0)
+        if ans:
+            return ans[0].to_text().rstrip(".")
+    except dns.exception.DNSException:
+        pass
+    return None
+
+# ──────────────────────────────────────────────────────────────────────────────
+# WhoisFreaks calls
+def wf_domain_whois(api_key: str, domain: str) -> Dict[str, Any]:
+    params = {"apiKey": api_key, "whois": "live", "domainName": domain}
+    r = requests.get(WF_WHOIS_URL, params=params, headers=HEADERS, timeout=TIMEOUT)
+    r.raise_for_status()
+    return r.json()
+
+def wf_ip_whois(api_key: str, ip: str) -> Dict[str, Any]:
+    params = {"apiKey": api_key, "ip": ip}
+    r = requests.get(WF_IP_WHOIS_URL, params=params, headers=HEADERS, timeout=TIMEOUT)
+    r.raise_for_status()
+    return r.json()
+
+def wf_geolocation(api_key: str, ip: str) -> Dict[str, Any]:
+    params = {"apiKey": api_key, "ip": ip}
+    r = requests.get(WF_GEO_URL, params=params, headers=HEADERS, timeout=TIMEOUT)
+    r.raise_for_status()
+    return r.json()
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Summarizers (defensive: field names may vary)
+def _first(*vals):
+    for v in vals:
+        if v not in (None, "", [], {}):
+            return v
+    return None
+
+def _collect_emails(obj: Any) -> List[str]:
+    """Walk dict/list and collect anything that looks like an email."""
+    emails: set = set()
+    def walk(x):
+        if isinstance(x, dict):
+            for k, v in x.items():
+                if isinstance(v, (dict, list)):
+                    walk(v)
+                else:
+                    if isinstance(v, str) and re.search(r"[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}", v, re.I):
+                        emails.add(v.strip())
+        elif isinstance(x, list):
+            for i in x:
+                walk(i)
+    walk(obj)
+    return sorted(emails)
+
+def summarize_domain_whois(p: Dict[str, Any]) -> Dict[str, Any]:
+    reg = p.get("domain_registrar") or {}
+    contacts = {
+        "registrant": p.get("registrant_contact"),
+        "administrative": p.get("administrative_contact"),
+        "technical": p.get("technical_contact"),
+        "billing": p.get("billing_contact"),
+    }
+    # nameservers sometimes in name_servers or nameservers (varies across APIs)
+    ns_obj = p.get("name_servers") or p.get("nameservers") or {}
+    nameservers: List[str] = []
+    if isinstance(ns_obj, dict):
+        for k, v in ns_obj.items():
+            if isinstance(v, list):
+                nameservers.extend([str(x).rstrip(".") for x in v])
+            elif isinstance(v, str):
+                nameservers.append(v.rstrip("."))
+    elif isinstance(ns_obj, list):
+        nameservers = [str(x).rstrip(".") for x in ns_obj]
+
+    abuse_candidates = []
+    # common registrar abuse fields (guessing defensively)
+    for key in ("abuse_email", "abuse_mailbox", "whois_server_abuse_email"):
+        if reg.get(key):
+            abuse_candidates.append(reg[key])
+    abuse_candidates.extend(_collect_emails(reg))
+    # also scan contacts for abuse emails
+    for c in contacts.values():
+        abuse_candidates.extend(_collect_emails(c or {}))
+    abuse_emails = sorted(set([e for e in abuse_candidates if "abuse" in e.lower()] or []))
+
+    return {
+        "domain": p.get("domain_name"),
+        "created": _first(p.get("create_date"), p.get("created_date")),
+        "updated": _first(p.get("update_date"), p.get("updated_date")),
+        "expires": _first(p.get("expiry_date"), p.get("expiration_date")),
+        "whois_server": p.get("whois_server"),
+        "registered": p.get("domain_registered"),
+        "registrar": {
+            "name": _first(reg.get("name"), reg.get("registrar_name")),
+            "iana_id": _first(reg.get("iana_id"), reg.get("registrar_iana_id")),
+            "url": reg.get("url") or reg.get("referral_url"),
+            "abuse_emails": abuse_emails,
+            "raw": reg,
+        },
+        "nameservers": sorted(set(nameservers)),
+        "contacts": contacts,
+        "raw": p,
+    }
+
+def summarize_ip_whois(p: Dict[str, Any]) -> Dict[str, Any]:
+    # Try common shapes
+    org = _first(p.get("org"), p.get("organization"), p.get("orgName"))
+    netname = _first(p.get("netname"), p.get("name"))
+    country = p.get("country")
+    asn = _first(p.get("asn"), p.get("autonomous_system_number"), p.get("origin_as"))
+    as_org = _first(p.get("asnName"), p.get("autonomous_system_name"), p.get("origin_as_name"))
+    cidr = _first(p.get("cidr"), p.get("route"))
+    inetnum = p.get("inetnum")
+    rir = _first(p.get("rir"), p.get("registry"), p.get("source"))
+    abuse_emails = [e for e in _collect_emails(p) if "abuse" in e.lower()]
+
+    return {
+        "org": org,
+        "network_name": netname,
+        "country": country,
+        "rir": rir,
+        "asn": asn,
+        "as_org": as_org,
+        "cidr": cidr,
+        "inetnum": inetnum,
+        "abuse_emails": sorted(set(abuse_emails)),
+        "raw": p,
+    }
+
+def summarize_geo(p: Dict[str, Any]) -> Dict[str, Any]:
+    # Typical fields; map flexibly
+    loc = p
+    country = _first(loc.get("country"), (loc.get("countryInfo") or {}).get("code"))
+    country_name = _first(loc.get("country_name"), (loc.get("countryInfo") or {}).get("name"))
+    region = _first(loc.get("region"), loc.get("state"), loc.get("stateProv"))
+    city = loc.get("city")
+    postal = _first(loc.get("zip"), loc.get("postalCode"))
+    lat = _first(loc.get("lat"), loc.get("latitude"))
+    lon = _first(loc.get("lon"), loc.get("lng"), loc.get("longitude"))
+    timezone = _first(loc.get("timezone"), loc.get("time_zone"))
+    isp = _first(loc.get("isp"), loc.get("provider"))
+    org = _first(loc.get("org"), loc.get("organization"), loc.get("company"))
+    # threat/proxy flags may be present
+    proxy = _first(loc.get("is_proxy"), loc.get("proxy"))
+    vpn = _first(loc.get("is_vpn"), loc.get("vpn"))
+    tor = _first(loc.get("is_tor"), loc.get("tor"))
+
+    return {
+        "country_code": country,
+        "country": country_name,
+        "region": region,
+        "city": city,
+        "postal_code": postal,
+        "lat": lat,
+        "lon": lon,
+        "timezone": timezone,
+        "isp": isp,
+        "org": org,
+        "proxy": proxy,
+        "vpn": vpn,
+        "tor": tor,
+        "raw": p,
+    }
+
+# ──────────────────────────────────────────────────────────────────────────────
+def build_ip_entry(api_key: str, ip: str) -> Dict[str, Any]:
+    entry: Dict[str, Any] = {"ip": ip, "rdns": rdns_ptr(ip)}
+    # IP-WHOIS
+    try:
+        ipw_raw = wf_ip_whois(api_key, ip)
+        entry["ip_whois"] = summarize_ip_whois(ipw_raw)
+    except requests.HTTPError as e:
+        entry["ip_whois"] = {"error": f"HTTP {e.response.status_code}", "raw": e.response.text[:500]}
+    except Exception as e:
+        entry["ip_whois"] = {"error": str(e)}
+
+    # Geo
+    try:
+        geo_raw = wf_geolocation(api_key, ip)
+        entry["geolocation"] = summarize_geo(geo_raw)
+    except requests.HTTPError as e:
+        entry["geolocation"] = {"error": f"HTTP {e.response.status_code}", "raw": e.response.text[:500]}
+    except Exception as e:
+        entry["geolocation"] = {"error": str(e)}
+
+    return entry
+
+def main():
+    if len(sys.argv) != 2:
+        print("Usage: python wf_probe.py <domain-or-ip>", file=sys.stderr)
+        sys.exit(1)
+
+    key = get_api_key()
+    if not key:
+        print("Please set WHOISFREAKS_API_KEY (variable in script or env).", file=sys.stderr)
+        sys.exit(2)
+
+    q = sys.argv[1].strip().lower()
+
+    result: Dict[str, Any] = {
+        "input_query": q,
+        "is_ip": is_ip(q),
+        "domain": None,
+        "dns": {"A": [], "AAAA": [], "MX": [], "NS": []},
+        "ips": [],
+    }
+
+    ips: List[str] = []
+
+    if is_ip(q):
+        ips = [q]
+    else:
+        # Domain WHOIS (live)
+        try:
+            dom_raw = wf_domain_whois(key, q)
+            result["domain"] = summarize_domain_whois(dom_raw)
+        except requests.HTTPError as e:
+            result["domain"] = {"error": f"HTTP {e.response.status_code}", "raw": e.response.text[:500]}
+        except Exception as e:
+            result["domain"] = {"error": str(e)}
+
+        # Resolve DNS
+        result["dns"] = resolve_dns(q)
+        ips = sorted(set(result["dns"]["A"] + result["dns"]["AAAA"]))
+
+    # IP loop
+    for ip in ips:
+        result["ips"].append(build_ip_entry(key, ip))
+
+    print(json.dumps(result, indent=2, ensure_ascii=False))
+
+if __name__ == "__main__":
+    main()
+

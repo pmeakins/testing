@@ -19,3 +19,4 @@ def silent_404(request, exception=None):
     return HttpResponse(status=204)
 
 handler404 = silent_404
+

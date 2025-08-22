@@ -1,0 +1,126 @@
+#!/usr/bin/env python3
+import csv, json, re, sys, time
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from pathlib import Path
+from typing import Dict, List, Tuple
+import requests
+
+IANA_TLD_LIST = "https://data.iana.org/TLD/tlds-alpha-by-domain.txt"
+IANA_RDAP_DNS  = "https://data.iana.org/rdap/dns.json"
+TIMEOUT = 12
+HEADERS = {"Accept": "application/rdap+json, application/json;q=0.9, */*;q=0.1",
+           "User-Agent": "tld-rdap-check/1.0"}
+
+def fetch_text(url: str) -> str:
+    r = requests.get(url, timeout=TIMEOUT)
+    r.raise_for_status()
+    return r.text
+
+def fetch_json(url: str) -> dict:
+    r = requests.get(url, timeout=TIMEOUT, headers=HEADERS)
+    r.raise_for_status()
+    return r.json()
+
+def load_tlds() -> List[str]:
+    txt = fetch_text(IANA_TLD_LIST)
+    tlds = []
+    for line in txt.splitlines():
+        line = line.strip()
+        if not line or line.startswith("#"):  # comments at top include timestamp
+            continue
+        tlds.append(line.lower())
+    return tlds
+
+def load_rdap_bootstrap() -> Dict[str, List[str]]:
+    data = fetch_json(IANA_RDAP_DNS)
+    # Per RFC 7484/9224 structure: entries -> services: [ [list_of_tlds], [list_of_base_urls] ]
+    # Normalize bases to ensure trailing slash per RFC guidance.
+    svc_map: Dict[str, List[str]] = {}
+    for entry in data.get("services", []):
+        tld_list, base_list = entry
+        bases = []
+        for b in base_list:
+            b = b.strip()
+            if not b.endswith("/"):
+                b += "/"
+            bases.append(b)
+        for t in tld_list:
+            svc_map[t.lower()] = bases
+    return svc_map
+
+def check_rdap_base(base_url: str) -> Tuple[bool, str, List[str]]:
+    """
+    Return (ok, detail, conformance[]) for an RDAP base.
+    We try base first; if not JSON, try /help. Many servers support /help.
+    """
+    for path in ("", "help"):
+        url = base_url + path
+        try:
+            r = requests.get(url, headers=HEADERS, timeout=TIMEOUT)
+            ctype = r.headers.get("Content-Type", "")
+            if "json" in ctype and r.status_code < 500:
+                try:
+                    j = r.json()
+                except Exception:
+                    continue
+                conf = j.get("rdapConformance") or []
+                # Minimal validation: RDAP typically includes "rdap_level_0"
+                if isinstance(conf, list) and conf:
+                    return True, f"{url} OK {r.status_code}", conf
+                else:
+                    return True, f"{url} JSON {r.status_code} (no rdapConformance)", []
+            # Some servers 200 with text/html for base; keep looping to /help
+        except requests.RequestException as e:
+            last_err = str(e)
+            continue
+    return False, f"{base_url} no RDAP JSON detected", []
+
+def test_tld(tld: str, svc_map: Dict[str, List[str]]) -> Dict[str, object]:
+    bases = svc_map.get(tld, [])
+    if not bases:
+        return {"tld": tld, "has_rdap": False, "bases": "", "ok_bases": 0,
+                "conformance": "", "notes": "No RDAP base in bootstrap"}
+    ok, conf_all, notes = 0, set(), []
+    for b in bases:
+        okb, detail, conf = check_rdap_base(b)
+        if okb: ok += 1
+        if conf: conf_all.update(conf)
+        notes.append(detail)
+        time.sleep(0.05)  # be polite
+    return {
+        "tld": tld,
+        "has_rdap": True,
+        "bases": " ".join(bases),
+        "ok_bases": ok,
+        "conformance": ",".join(sorted(conf_all)),
+        "notes": " | ".join(notes)[:500]
+    }
+
+def main():
+    print("Downloading IANA TLD list & RDAP bootstrap ...", file=sys.stderr)
+    tlds = load_tlds()
+    svc_map = load_rdap_bootstrap()
+
+    results = []
+    with ThreadPoolExecutor(max_workers=16) as ex:
+        futs = {ex.submit(test_tld, tld, svc_map): tld for tld in tlds}
+        for fut in as_completed(futs):
+            results.append(fut.result())
+
+    out = Path("tld_rdap_check.csv")
+    with out.open("w", newline="", encoding="utf-8") as f:
+        w = csv.DictWriter(f, fieldnames=["tld","has_rdap","ok_bases","bases","conformance","notes"])
+        w.writeheader()
+        for row in sorted(results, key=lambda r: r["tld"]):
+            w.writerow(row)
+
+    print(f"Wrote {out.resolve()}")
+    # Quick summary
+    total = len(results)
+    have = sum(1 for r in results if r["has_rdap"])
+    ok_any = sum(1 for r in results if r["ok_bases"] > 0)
+    print(f"TLDs: {total} | In bootstrap: {have} | At least one working RDAP base: {ok_any}")
+
+if __name__ == "__main__":
+    main()
+

@@ -1,0 +1,119 @@
+{
+  "input_query": "your.it",
+  "is_ip": false,
+  "dns": {
+    "A": [
+      "176.32.230.47"
+    ],
+    "AAAA": []
+  },
+  "lookups": [
+    {
+      "ip": "176.32.230.47",
+      "rdns": "web303.extendcp.co.uk",
+      "providers": {
+        "whoisxml": {
+          "ip": "176.32.230.47",
+          "domain": null,
+          "continent": null,
+          "country": "US",
+          "country_code": null,
+          "region": "Virginia",
+          "city": "Ashburn",
+          "postal_code": "20146",
+          "lat": 39.04372,
+          "lon": -77.48749,
+          "timezone": "-04:00",
+          "isp": "GD-EMEA-DC-LD5",
+          "org": null,
+          "connection_type": "",
+          "asn": null,
+          "as_org": null,
+          "reverse_domains": [
+            "001-translations762.hedgesdirect.co.uk",
+            "0036-sasgeocovidev.hedgesdirect.co.uk",
+            "01-singlepageapp.hedgesdirect.co.uk",
+            "012727da-19b3-4f39-8bdc-ac2688d60abe.random.stuntin.co.uk",
+            "0139eefd-52c4-42fa-b424-279b604c9084.random.theweescottishgiftcompany.co.uk"
+          ],
+          "raw": {
+            "ip": "176.32.230.47",
+            "location": {
+              "country": "US",
+              "region": "Virginia",
+              "city": "Ashburn",
+              "lat": 39.04372,
+              "lng": -77.48749,
+              "postalCode": "20146",
+              "timezone": "-04:00",
+              "geonameId": 4744870
+            },
+            "domains": [
+              "001-translations762.hedgesdirect.co.uk",
+              "0036-sasgeocovidev.hedgesdirect.co.uk",
+              "01-singlepageapp.hedgesdirect.co.uk",
+              "012727da-19b3-4f39-8bdc-ac2688d60abe.random.stuntin.co.uk",
+              "0139eefd-52c4-42fa-b424-279b604c9084.random.theweescottishgiftcompany.co.uk"
+            ],
+            "as": {
+              "asn": 20738,
+              "name": "GD-EMEA-DC-LD5",
+              "route": "176.32.230.0/24",
+              "domain": "https://www.heartinternet.uk/",
+              "type": ""
+            },
+            "isp": "GD-EMEA-DC-LD5",
+            "connectionType": ""
+          }
+        },
+        "ipinfo": {
+          "ip": "176.32.230.47",
+          "country": "GB",
+          "region": "England",
+          "city": "Leeds",
+          "lat": 53.7965,
+          "lon": -1.5478,
+          "org": "AS20738 Heart Internet limited",
+          "asn": "20738",
+          "as_org": "Heart Internet limited",
+          "timezone": "Europe/London",
+          "raw": {
+            "ip": "176.32.230.47",
+            "hostname": "web303.extendcp.co.uk",
+            "city": "Leeds",
+            "region": "England",
+            "country": "GB",
+            "loc": "53.7965,-1.5478",
+            "org": "AS20738 Heart Internet limited",
+            "postal": "LS1",
+            "timezone": "Europe/London"
+          }
+        }
+      },
+      "discrepancies": {
+        "country": {
+          "whoisxml": "US",
+          "ipinfo": "GB"
+        },
+        "region": {
+          "whoisxml": "Virginia",
+          "ipinfo": "England"
+        },
+        "city": {
+          "whoisxml": "Ashburn",
+          "ipinfo": "Leeds"
+        },
+        "coord_distance_km": 5749.1
+      },
+      "headline_location": {
+        "country": "GB",
+        "region": "England",
+        "city": "Leeds",
+        "lat": 53.7965,
+        "lon": -1.5478,
+        "source": "ipinfo"
+      }
+    }
+  ],
+  "domain_lookup_used": false
+}

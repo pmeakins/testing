@@ -1,0 +1,66 @@
+{
+  "input_domain": "jacquard.com",
+  "dns": {
+    "A": [
+      "162.159.135.42"
+    ],
+    "AAAA": []
+  },
+  "lookups": [
+    {
+      "ip": "162.159.135.42",
+      "domain": null,
+      "continent": null,
+      "country": "US",
+      "country_code": null,
+      "region": "California",
+      "city": "South Beach",
+      "postal_code": null,
+      "lat": 37.78298,
+      "lon": -122.38969,
+      "timezone": "-07:00",
+      "isp": "Cloudflare",
+      "org": null,
+      "connection_type": "",
+      "asn": null,
+      "as_org": null,
+      "reverse_domains": [
+        "0-16.unn.edu.ng",
+        "0-25.snowdropsolutions.co.uk",
+        "0-cms-hfjdlopii4dojbasa-csg-euo-cloud.lego.puyecliffdwellings.com",
+        "0-courier.snapdragonproseries.com",
+        "0-dl.sciencesocieties.org.library.unn.edu.ng"
+      ],
+      "raw": {
+        "ip": "162.159.135.42",
+        "location": {
+          "country": "US",
+          "region": "California",
+          "city": "South Beach",
+          "lat": 37.78298,
+          "lng": -122.38969,
+          "postalCode": "",
+          "timezone": "-07:00",
+          "geonameId": 5326621
+        },
+        "domains": [
+          "0-16.unn.edu.ng",
+          "0-25.snowdropsolutions.co.uk",
+          "0-cms-hfjdlopii4dojbasa-csg-euo-cloud.lego.puyecliffdwellings.com",
+          "0-courier.snapdragonproseries.com",
+          "0-dl.sciencesocieties.org.library.unn.edu.ng"
+        ],
+        "as": {
+          "asn": 13335,
+          "name": "CLOUDFLARENET",
+          "route": "162.159.128.0/19",
+          "domain": "https://www.cloudflare.com",
+          "type": "Content"
+        },
+        "isp": "Cloudflare",
+        "connectionType": ""
+      }
+    }
+  ],
+  "domain_lookup_used": false
+}

@@ -1,0 +1,369 @@
+{
+  "input_query": "your.it",
+  "is_ip": false,
+  "domain": {
+    "domain": "your.it",
+    "created": "2002-03-22",
+    "updated": "2025-01-27",
+    "expires": "2026-01-11",
+    "whois_server": "whois.nic.it",
+    "registered": "yes",
+    "registrar": {
+      "name": "ITDOMAINS-REG",
+      "iana_id": null,
+      "url": null,
+      "abuse_emails": [],
+      "raw": {
+        "registrar_name": "ITDOMAINS-REG",
+        "website_url": "http://domains.meshdigital.com"
+      }
+    },
+    "nameservers": [
+      "ns.heartinternet.uk",
+      "ns2.heartinternet.uk"
+    ],
+    "contacts": {
+      "registrant": {
+        "company": "hidden"
+      },
+      "administrative": {
+        "name": "hidden",
+        "company": "hidden"
+      },
+      "technical": {
+        "name": "hidden",
+        "company": "hidden"
+      },
+      "billing": null
+    },
+    "raw": {
+      "status": true,
+      "domain_name": "your.it",
+      "query_time": "2025-08-18 23:35:32",
+      "whois_server": "whois.nic.it",
+      "domain_registered": "yes",
+      "create_date": "2002-03-22",
+      "update_date": "2025-01-27",
+      "expiry_date": "2026-01-11",
+      "domain_registrar": {
+        "registrar_name": "ITDOMAINS-REG",
+        "website_url": "http://domains.meshdigital.com"
+      },
+      "registrant_contact": {
+        "company": "hidden"
+      },
+      "administrative_contact": {
+        "name": "hidden",
+        "company": "hidden"
+      },
+      "technical_contact": {
+        "name": "hidden",
+        "company": "hidden"
+      },
+      "name_servers": [
+        "ns.heartinternet.uk",
+        "ns2.heartinternet.uk"
+      ],
+      "whois_raw_domain": "\n*********************************************************************\n* Please note that the following result could be a subgroup of      *\n* the data contained in the database.                               *\n*                                                                   *\n* Additional information can be visualized at:                      *\n* http://web-whois.nic.it                                           *\n*********************************************************************\n\nDomain:             your.it\nStatus:             ok\nSigned:             no\nCreated:            2002-03-22 00:00:00\nLast Update:        2025-01-27 00:58:24\nExpire Date:        2026-01-11\n\nRegistrant\n  Organization:     hidden\n\nAdmin Contact\n  Name:             hidden\n  Organization:     hidden\n\nTechnical Contacts\n  Name:             hidden\n  Organization:     hidden\n\nRegistrar\n  Organization:     Mesh Digital Limited\n  Name:             ITDOMAINS-REG\n  Web:              http://domains.meshdigital.com\n  DNSSEC:           no\n\n\nNameservers\n  ns.heartinternet.uk\n  ns2.heartinternet.uk"
+    }
+  },
+  "dns": {
+    "A": [
+      "176.32.230.47"
+    ],
+    "AAAA": [],
+    "MX": [
+      "mail.your.it"
+    ],
+    "NS": [
+      "ns.heartinternet.uk",
+      "ns2.heartinternet.uk"
+    ]
+  },
+  "ips": [
+    {
+      "ip": "176.32.230.47",
+      "rdns": "web303.extendcp.co.uk",
+      "ip_whois": {
+        "org": {
+          "handle": "ORG-HIL3-RIPE",
+          "name": "Heart Internet Ltd",
+          "type": "Other",
+          "address": [
+            "Castle Quay, Castle Boulevard",
+            "NG7 1FW",
+            "Nottingham",
+            "UNITED KINGDOM"
+          ],
+          "street": "Castle Boulevard",
+          "city": "Nottingham",
+          "zip_code": "NG7 1FW",
+          "country": [
+            "UNITED KINGDOM"
+          ],
+          "phone": [
+            "+448456447750"
+          ],
+          "fax_no": [
+            "+448456447740"
+          ],
+          "admin_contacts": [
+            "HONK"
+          ],
+          "abuse_contacts": [
+            "AR17689-RIPE"
+          ],
+          "mnt_ref": [
+            "HEARTINTERNET-UK-MNT",
+            "GODADDY-MNT",
+            "GODADDY-MNT"
+          ],
+          "mnt_by": [
+            "GODADDY-MNT"
+          ],
+          "date_created": "2007-09-20",
+          "date_updated": "2019-06-04",
+          "source": "RIPE"
+        },
+        "network_name": null,
+        "country": null,
+        "rir": null,
+        "asn": null,
+        "as_org": null,
+        "cidr": null,
+        "inetnum": null,
+        "abuse_emails": [
+          "% This is the RIPE Database query service.\n% The objects are in RPSL format.\n%\n% The RIPE Database is subject to Terms and Conditions.\n% See https://docs.db.ripe.net/terms-conditions.html\n\n% Note: this output has been filtered.\n%       To receive output for a database update, use the \"-B\" flag.\n\n% Information related to '176.32.228.0 - 176.32.231.255'\n\n% Abuse contact for '176.32.228.0 - 176.32.231.255' is 'lir@heartinternet.co.uk'\n\ninetnum:        176.32.228.0 - 176.32.231.255\nnetname:        UK-HEG-MASS\ndescr:          Mass Sub Alloc\ncountry:        GB\norg:            ORG-HIL3-RIPE\nadmin-c:        HM5126-RIPE\ntech-c:         HM5126-RIPE\nstatus:         SUB-ALLOCATED PA\nmnt-by:         GODADDY-MNT\nmnt-lower:      MNT-HEG-MASS\nmnt-domains:    MNT-HEG-MASS\nmnt-routes:     MNT-HEG-MASS\ncreated:        2016-02-08T06:52:40Z\nlast-modified:  2019-06-04T09:15:32Z\nsource:         RIPE # Filtered\n\norganisation:   ORG-HIL3-RIPE\norg-name:       Heart Internet Ltd\norg-type:       Other\naddress:        Castle Quay, Castle Boulevard\naddress:        NG7 1FW\naddress:        Nottingham\naddress:        UNITED KINGDOM\nphone:          +448456447750\nfax-no:         +448456447740\nabuse-c:        AR17689-RIPE\nmnt-ref:        HEARTINTERNET-UK-MNT\nmnt-ref:        GODADDY-MNT\nmnt-ref:        GODADDY-MNT\nmnt-by:         GODADDY-MNT\ncreated:        2007-09-20T13:41:53Z\nlast-modified:  2019-06-04T09:16:32Z\nadmin-c:        HONK\nsource:         RIPE # Filtered\n\nrole:           HEG Mass\naddress:        HEG Mass\naddress:        Daimler Strasse 9-11\naddress:        50354 Huerth\naddress:        Germany\nphone:          +49 2203 1045 0\nadmin-c:        JUPP\ntech-c:         JUPP\nnic-hdl:        HM5126-RIPE\nmnt-by:         MNT-HEG-MASS\ncreated:        2015-11-05T11:32:14Z\nlast-modified:  2023-04-28T10:37:52Z\nsource:         RIPE # Filtered\n\n% Information related to '176.32.230.0/24AS20738'\n\nroute:          176.32.230.0/24\norigin:         AS20738\nmnt-by:         GODADDY-MNT\ncreated:        2025-05-12T16:16:07Z\nlast-modified:  2025-05-12T16:16:07Z\nsource:         RIPE\n\n% This query was served by the RIPE Database Query Service version 1.118.1 (DEXTER)"
+        ],
+        "raw": {
+          "status": true,
+          "ip_address": "176.32.230.47",
+          "query_time": "2025-08-18 23:35:33",
+          "whois_server": "whois.ripe.net",
+          "inet_nums": [
+            {
+              "start_ip": "176.32.228.0",
+              "end_ip": "176.32.231.255",
+              "cidr": [
+                "176.32.228.0/22"
+              ],
+              "net_name": "UK-HEG-MASS",
+              "description": [
+                "Mass Sub Alloc"
+              ],
+              "countries": [
+                "GB"
+              ],
+              "status": "SUB-ALLOCATED PA",
+              "organization": "ORG-HIL3-RIPE",
+              "mnt_by": [
+                "GODADDY-MNT"
+              ],
+              "mnt_lower": [
+                "MNT-HEG-MASS"
+              ],
+              "mnt_domains": [
+                "MNT-HEG-MASS"
+              ],
+              "mnt_routes": [
+                "MNT-HEG-MASS"
+              ],
+              "date_created": "2016-02-08",
+              "date_updated": "2019-06-04",
+              "source": "RIPE"
+            }
+          ],
+          "organization": {
+            "handle": "ORG-HIL3-RIPE",
+            "name": "Heart Internet Ltd",
+            "type": "Other",
+            "address": [
+              "Castle Quay, Castle Boulevard",
+              "NG7 1FW",
+              "Nottingham",
+              "UNITED KINGDOM"
+            ],
+            "street": "Castle Boulevard",
+            "city": "Nottingham",
+            "zip_code": "NG7 1FW",
+            "country": [
+              "UNITED KINGDOM"
+            ],
+            "phone": [
+              "+448456447750"
+            ],
+            "fax_no": [
+              "+448456447740"
+            ],
+            "admin_contacts": [
+              "HONK"
+            ],
+            "abuse_contacts": [
+              "AR17689-RIPE"
+            ],
+            "mnt_ref": [
+              "HEARTINTERNET-UK-MNT",
+              "GODADDY-MNT",
+              "GODADDY-MNT"
+            ],
+            "mnt_by": [
+              "GODADDY-MNT"
+            ],
+            "date_created": "2007-09-20",
+            "date_updated": "2019-06-04",
+            "source": "RIPE"
+          },
+          "administrative_contacts": [
+            {
+              "handle": "HM5126-RIPE",
+              "name": "HEG Mass",
+              "address": [
+                "HEG Mass",
+                "Daimler Strasse 9-11",
+                "50354 Huerth",
+                "Germany"
+              ],
+              "street": "Daimler Strasse",
+              "city": "Huerth",
+              "zip_code": "50354",
+              "country": "GERMANY",
+              "phone": [
+                "+49 2203 1045 0"
+              ],
+              "admin_contacts": [
+                "JUPP"
+              ],
+              "tech_contacts": [
+                "JUPP"
+              ],
+              "mnt_by": [
+                "MNT-HEG-MASS"
+              ],
+              "date_created": "2015-11-05",
+              "date_updated": "2023-04-28",
+              "source": "RIPE"
+            }
+          ],
+          "technical_contacts": [
+            {
+              "handle": "HM5126-RIPE",
+              "name": "HEG Mass",
+              "address": [
+                "HEG Mass",
+                "Daimler Strasse 9-11",
+                "50354 Huerth",
+                "Germany"
+              ],
+              "street": "Daimler Strasse",
+              "city": "Huerth",
+              "zip_code": "50354",
+              "country": "GERMANY",
+              "phone": [
+                "+49 2203 1045 0"
+              ],
+              "admin_contacts": [
+                "JUPP"
+              ],
+              "tech_contacts": [
+                "JUPP"
+              ],
+              "mnt_by": [
+                "MNT-HEG-MASS"
+              ],
+              "date_created": "2015-11-05",
+              "date_updated": "2023-04-28",
+              "source": "RIPE"
+            }
+          ],
+          "routes": [
+            {
+              "route": "176.32.230.0/24",
+              "origin": "AS20738",
+              "mnt_by": [
+                "GODADDY-MNT"
+              ],
+              "date_created": "2025-05-12",
+              "date_updated": "2025-05-12",
+              "source": "RIPE"
+            }
+          ],
+          "whois_raw_response": "% This is the RIPE Database query service.\n% The objects are in RPSL format.\n%\n% The RIPE Database is subject to Terms and Conditions.\n% See https://docs.db.ripe.net/terms-conditions.html\n\n% Note: this output has been filtered.\n%       To receive output for a database update, use the \"-B\" flag.\n\n% Information related to '176.32.228.0 - 176.32.231.255'\n\n% Abuse contact for '176.32.228.0 - 176.32.231.255' is 'lir@heartinternet.co.uk'\n\ninetnum:        176.32.228.0 - 176.32.231.255\nnetname:        UK-HEG-MASS\ndescr:          Mass Sub Alloc\ncountry:        GB\norg:            ORG-HIL3-RIPE\nadmin-c:        HM5126-RIPE\ntech-c:         HM5126-RIPE\nstatus:         SUB-ALLOCATED PA\nmnt-by:         GODADDY-MNT\nmnt-lower:      MNT-HEG-MASS\nmnt-domains:    MNT-HEG-MASS\nmnt-routes:     MNT-HEG-MASS\ncreated:        2016-02-08T06:52:40Z\nlast-modified:  2019-06-04T09:15:32Z\nsource:         RIPE # Filtered\n\norganisation:   ORG-HIL3-RIPE\norg-name:       Heart Internet Ltd\norg-type:       Other\naddress:        Castle Quay, Castle Boulevard\naddress:        NG7 1FW\naddress:        Nottingham\naddress:        UNITED KINGDOM\nphone:          +448456447750\nfax-no:         +448456447740\nabuse-c:        AR17689-RIPE\nmnt-ref:        HEARTINTERNET-UK-MNT\nmnt-ref:        GODADDY-MNT\nmnt-ref:        GODADDY-MNT\nmnt-by:         GODADDY-MNT\ncreated:        2007-09-20T13:41:53Z\nlast-modified:  2019-06-04T09:16:32Z\nadmin-c:        HONK\nsource:         RIPE # Filtered\n\nrole:           HEG Mass\naddress:        HEG Mass\naddress:        Daimler Strasse 9-11\naddress:        50354 Huerth\naddress:        Germany\nphone:          +49 2203 1045 0\nadmin-c:        JUPP\ntech-c:         JUPP\nnic-hdl:        HM5126-RIPE\nmnt-by:         MNT-HEG-MASS\ncreated:        2015-11-05T11:32:14Z\nlast-modified:  2023-04-28T10:37:52Z\nsource:         RIPE # Filtered\n\n% Information related to '176.32.230.0/24AS20738'\n\nroute:          176.32.230.0/24\norigin:         AS20738\nmnt-by:         GODADDY-MNT\ncreated:        2025-05-12T16:16:07Z\nlast-modified:  2025-05-12T16:16:07Z\nsource:         RIPE\n\n% This query was served by the RIPE Database Query Service version 1.118.1 (DEXTER)\n\n"
+        }
+      },
+      "geolocation": {
+        "country_code": null,
+        "country": null,
+        "region": null,
+        "city": null,
+        "postal_code": null,
+        "lat": null,
+        "lon": null,
+        "timezone": null,
+        "isp": null,
+        "org": null,
+        "proxy": null,
+        "vpn": null,
+        "tor": null,
+        "raw": {
+          "ip": "176.32.230.47",
+          "location": {
+            "continent_code": "EU",
+            "continent_name": "Europe",
+            "country_code2": "GB",
+            "country_code3": "GBR",
+            "country_name": "United Kingdom",
+            "country_name_official": "United Kingdom of Great Britain and Northern Ireland",
+            "country_capital": "London",
+            "state_prov": "England",
+            "state_code": "GB-ENG",
+            "district": "City of Nottingham",
+            "city": "Nottingham",
+            "locality": "Nottingham",
+            "accuracy_radius": "",
+            "zipcode": "NG7 1FB",
+            "latitude": "52.94881",
+            "longitude": "-1.15181",
+            "is_eu": false,
+            "geoname_id": "6287302",
+            "country_emoji": "🇬🇧"
+          },
+          "country_metadata": {
+            "calling_code": "+44",
+            "tld": ".uk",
+            "languages": [
+              "en-GB",
+              "cy-GB",
+              "gd"
+            ]
+          },
+          "network": {
+            "asn": {
+              "as_number": "AS20738",
+              "organization": "Heart Internet limited",
+              "country": "GB",
+              "asn_name": "GD-EMEA-DC-LD5",
+              "type": "HOSTING",
+              "domain": "heartinternet.uk",
+              "date_allocated": "2001-05-15",
+              "allocation_status": "allocated",
+              "num_of_ipv4_routes": "223",
+              "num_of_ipv6_routes": "2",
+              "rir": "RIPE"
+            },
+            "connection_type": "",
+            "company": {
+              "name": "Heart Internet Ltd",
+              "type": "",
+              "domain": ""
+            }
+          },
+          "currency": {
+            "code": "GBP",
+            "name": "Pound Sterling",
+            "symbol": "£"
+          }
+        }
+      }
+    }
+  ]
+}

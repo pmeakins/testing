@@ -1,0 +1,305 @@
+#!/usr/bin/env python3
+"""
+domain_probe.py — Fetch domain history & hosting footprint
+
+Features:
+- Domain RDAP: creation/updated/expiry, registrar, abuse contacts, nameservers, statuses
+- DNS resolution: A, AAAA, MX
+- IP RDAP per resolved IP: network/ISP/org, RIR, abuse contacts, CIDR
+- Geolocation per IP: city/region/country/lat/lon (+ ISP)
+
+Usage:
+  python domain_probe.py example.com
+"""
+
+import sys
+import json
+import socket
+import requests
+from datetime import datetime
+from typing import Dict, Any, List, Optional
+import dns.resolver
+
+RDAP_BASE = "https://rdap.org"  # Aggregates RDAP across TLDs & RIRs
+TIMEOUT = 15
+
+def parse_rdap_events(events: List[Dict[str, Any]]) -> Dict[str, Optional[str]]:
+    """Extract creation/updated/expiry timestamps from RDAP 'events'."""
+    out = {"created": None, "updated": None, "expires": None}
+    if not events:
+        return out
+    for ev in events:
+        action = (ev.get("eventAction") or "").lower()
+        date = ev.get("eventDate")
+        if not date:
+            continue
+        if action in ("registration", "domain registration"):
+            out["created"] = date
+        elif action in ("last changed", "last update", "last changed by registrar", "last changed by registry"):
+            out["updated"] = date
+        elif action in ("expiration", "expiry", "expires"):
+            out["expires"] = date
+    return out
+
+def rdap_domain(domain: str) -> Dict[str, Any]:
+    url = f"{RDAP_BASE}/domain/{domain}"
+    r = requests.get(url, timeout=TIMEOUT)
+    r.raise_for_status()
+    return r.json()
+
+def rdap_ip(ip: str) -> Dict[str, Any]:
+    url = f"{RDAP_BASE}/ip/{ip}"
+    r = requests.get(url, timeout=TIMEOUT)
+    r.raise_for_status()
+    return r.json()
+
+def collect_abuse_emails(entities: Optional[List[Dict[str, Any]]]) -> List[str]:
+    emails = set()
+    if not entities:
+        return []
+    for ent in entities:
+        roles = [x.lower() for x in ent.get("roles", [])]
+        if "abuse" in roles or "registrar abuse" in roles:
+            vcard = ent.get("vcardArray", [])
+            if len(vcard) == 2 and isinstance(vcard[1], list):
+                for item in vcard[1]:
+                    if len(item) >= 4 and item[0] == "email":
+                        val = item[3]
+                        if isinstance(val, str):
+                            emails.add(val)
+        # Some RDAPs attach emails in "entities" > "entities"
+        for sub in ent.get("entities", []) or []:
+            sub_roles = [x.lower() for x in sub.get("roles", [])]
+            if "abuse" in sub_roles:
+                vcard = sub.get("vcardArray", [])
+                if len(vcard) == 2 and isinstance(vcard[1], list):
+                    for item in vcard[1]:
+                        if len(item) >= 4 and item[0] == "email":
+                            val = item[3]
+                            if isinstance(val, str):
+                                emails.add(val)
+    return sorted(emails)
+
+def get_vcard_name(vcardArray: Any) -> Optional[str]:
+    if not vcardArray or len(vcardArray) != 2:
+        return None
+    for item in vcardArray[1]:
+        if len(item) >= 4 and item[0] in ("fn", "org"):
+            val = item[3]
+            if isinstance(val, str):
+                return val
+    return None
+
+def find_registrar(entities: Optional[List[Dict[str, Any]]]) -> Dict[str, Any]:
+    result = {"name": None, "abuse_emails": []}
+    if not entities:
+        return result
+    for ent in entities:
+        roles = [x.lower() for x in ent.get("roles", [])]
+        if "registrar" in roles:
+            result["name"] = get_vcard_name(ent.get("vcardArray"))
+            # Abuse under the registrar entity or nested entities
+            emails = collect_abuse_emails([ent])
+            if emails:
+                result["abuse_emails"] = emails
+            break
+    # Fallback: collect any abuse emails at domain level
+    if not result["abuse_emails"]:
+        result["abuse_emails"] = collect_abuse_emails(entities)
+    return result
+
+def geo_lookup(ip: str) -> Dict[str, Any]:
+    """
+    Default: ip-api.com (no key). Respect their fair use limits if you batch large lists.
+    Swap this out for MaxMind, IP2Location, IPinfo, etc. if you have a paid key.
+    """
+    try:
+        resp = requests.get(f"http://ip-api.com/json/{ip}", timeout=TIMEOUT, params={"fields": "status,message,city,regionName,country,lat,lon,isp,org,as,query"})
+        data = resp.json()
+        if data.get("status") != "success":
+            return {"error": data.get("message")}
+        return {
+            "city": data.get("city"),
+            "region": data.get("regionName"),
+            "country": data.get("country"),
+            "lat": data.get("lat"),
+            "lon": data.get("lon"),
+            "isp": data.get("isp"),
+            "org": data.get("org"),
+            "asn": data.get("as"),
+        }
+    except Exception as e:
+        return {"error": str(e)}
+
+def resolve_records(domain: str) -> Dict[str, List[str]]:
+    res = dns.resolver.Resolver()
+    res.lifetime = 5.0
+    res.timeout = 5.0
+    out = {"A": [], "AAAA": [], "MX": [], "NS": []}
+    def q(rr):
+        try:
+            ans = res.resolve(domain, rr)
+            return [r.to_text() for r in ans]
+        except Exception:
+            return []
+    out["A"] = q("A")
+    out["AAAA"] = q("AAAA")
+    out["MX"] = q("MX")
+    out["NS"] = q("NS")
+    return out
+
+def summarize_ip_rdap(ip_data: Dict[str, Any]) -> Dict[str, Any]:
+    net = ip_data.get("name") or ip_data.get("handle") or ""
+    country = ip_data.get("country")
+    rir = None
+    # RIR often present in notices or links; guess from rdapConformance/links as fallback
+    for link in ip_data.get("links", []) or []:
+        href = link.get("href", "")
+        if "arin.net" in href: rir = "ARIN"
+        elif "ripe.net" in href: rir = "RIPE"
+        elif "apnic.net" in href: rir = "APNIC"
+        elif "lacnic.net" in href: rir = "LACNIC"
+        elif "afrinic.net" in href: rir = "AFRINIC"
+    cidr = None
+    if "startAddress" in ip_data and "endAddress" in ip_data:
+        cidr = f"{ip_data.get('startAddress')} - {ip_data.get('endAddress')}"
+    abuse_emails = collect_abuse_emails(ip_data.get("entities"))
+    # Try to pull org name from entities with role 'administrative' or 'technical' or 'registrant'
+    org_name = None
+    for ent in ip_data.get("entities", []) or []:
+        nm = get_vcard_name(ent.get("vcardArray"))
+        if nm:
+            org_name = nm
+            break
+    return {
+        "network_name": net or None,
+        "org": org_name,
+        "country": country,
+        "rir": rir,
+        "cidr": cidr,
+        "abuse_emails": abuse_emails,
+    }
+
+def iso(dt: Optional[str]) -> Optional[str]:
+    if not dt:
+        return None
+    # RDAP dates are ISO already, but normalize to YYYY-MM-DD
+    try:
+        return datetime.fromisoformat(dt.replace("Z", "+00:00")).strftime("%Y-%m-%d")
+    except Exception:
+        return dt
+
+def probe(domain: str) -> Dict[str, Any]:
+    domain = domain.strip().lower().rstrip(".")
+    dom_rdap = rdap_domain(domain)
+
+    events = parse_rdap_events(dom_rdap.get("events", []))
+    registrar = find_registrar(dom_rdap.get("entities", []))
+
+    nameservers = []
+    for ns in dom_rdap.get("nameservers", []) or []:
+        ldh = ns.get("ldhName") or ns.get("handle")
+        if ldh:
+            nameservers.append(ldh)
+
+    result: Dict[str, Any] = {
+        "domain": {
+            "name": dom_rdap.get("ldhName") or domain,
+            "creation_date": iso(events.get("created")),
+            "updated_date": iso(events.get("updated")),
+            "expiration_date": iso(events.get("expires")),
+            "registrar": registrar,
+            "nameservers": sorted(set(nameservers)),
+            "statuses": dom_rdap.get("status", []),
+        },
+        "dns": {},
+        "ips": {},
+    }
+
+    # DNS
+    dns_records = resolve_records(domain)
+    result["dns"] = dns_records
+
+    # For each IP from A and AAAA, fetch IP RDAP + GEO
+    unique_ips = sorted(set([x.split()[0] for x in dns_records.get("A", [])] +
+                            [x.split()[0] for x in dns_records.get("AAAA", [])]))
+    for ip in unique_ips:
+        try:
+            ipinfo = rdap_ip(ip)
+            ip_summary = summarize_ip_rdap(ipinfo)
+        except Exception as e:
+            ip_summary = {"error": f"IP RDAP failed: {e}"}
+        geo = geo_lookup(ip)
+        result["ips"][ip] = {"rdap": ip_summary, "geo": geo}
+
+    return result
+
+def print_human(result: Dict[str, Any]) -> None:
+    d = result["domain"]
+    print("="*72)
+    print(f"Domain:        {d['name']}")
+    print(f"Created:       {d.get('creation_date')}")
+    print(f"Updated:       {d.get('updated_date')}")
+    print(f"Expires:       {d.get('expiration_date')}")
+    reg = d.get("registrar") or {}
+    print(f"Registrar:     {reg.get('name')}")
+    print(f"Abuse Email:   {', '.join(reg.get('abuse_emails', [])) or '—'}")
+    print(f"Nameservers:   {', '.join(d.get('nameservers', []) or []) or '—'}")
+    if d.get("statuses"):
+        print(f"Statuses:      {', '.join(d['statuses'])}")
+    print("\nDNS")
+    print("-"*72)
+    for rr in ("A", "AAAA", "MX", "NS"):
+        vals = result["dns"].get(rr) or []
+        if rr == "MX":
+            # Already includes preference + host as strings
+            print(f"{rr:4} -> {', '.join(vals) or '—'}")
+        else:
+            # Strip trailing dots
+            clean = [v.rstrip(".") for v in vals]
+            print(f"{rr:4} -> {', '.join(clean) or '—'}")
+
+    print("\nResolved IPs")
+    print("-"*72)
+    if not result["ips"]:
+        print("No A/AAAA records resolved.")
+    for ip, data in result["ips"].items():
+        rd = data.get("rdap", {})
+        geo = data.get("geo", {})
+        print(f"{ip}")
+        if "error" in rd:
+            print(f"  RDAP:    {rd['error']}")
+        else:
+            print(f"  Net:     {rd.get('network_name')}  Org: {rd.get('org')}  RIR: {rd.get('rir')}  Country: {rd.get('country')}")
+            print(f"  CIDR:    {rd.get('cidr')}")
+            abuse = rd.get("abuse_emails") or []
+            print(f"  Abuse:   {', '.join(abuse) if abuse else '—'}")
+        if "error" in geo:
+            print(f"  Geo:     {geo['error']}")
+        else:
+            print(f"  Geo:     {geo.get('city')}, {geo.get('region')}, {geo.get('country')}  ({geo.get('lat')},{geo.get('lon')})  ISP: {geo.get('isp')}")
+        print()
+
+    print("="*72)
+    print("JSON")
+    print("-"*72)
+    print(json.dumps(result, indent=2))
+
+def main():
+    if len(sys.argv) != 2:
+        print("Usage: python domain_probe.py <domain>")
+        sys.exit(1)
+    domain = sys.argv[1]
+    try:
+        result = probe(domain)
+        print_human(result)
+    except requests.HTTPError as e:
+        print(f"HTTP error: {e} — response: {getattr(e, 'response', None) and e.response.text[:300]}")
+        sys.exit(2)
+    except Exception as e:
+        print(f"Error: {e}")
+        sys.exit(3)
+
+if __name__ == "__main__":
+    main()
+
