@@ -1,0 +1,50 @@
+    <!-- {% load static %} -->
+
+    <div id="hero-banner" class="relative min-h-[400px] md:h-[500px] overflow-hidden">
+
+      <!-- Background image (decorative) -->
+      <img src="{% static 'images/faceless.png' %}" alt="" aria-hidden="true"
+        class="absolute inset-0 w-full h-full object-cover" />
+
+      <!-- Overlay gradient -->
+      <div class="absolute inset-0 bg-gradient-to-r from-primary/80 to-dark/50"></div>
+
+      <!-- Content container -->
+      <div class="container mx-auto px-4 md:px-8 relative h-full flex items-center justify-between">
+
+        <!-- Top-left logo (kept above overlay) -->
+        <a href="/" class="absolute top-4 left-4 md:top-6 md:left-6 z-10 inline-flex items-center">
+          <img src="{% static 'images/scamlogo.png' %}" alt="ScamRegistry logo" class="h-9 w-auto" />
+          <span class="sr-only">ScamRegistry home</span>
+        </a>
+
+        <!-- Left: main content -->
+        <div class="relative z-10 max-w-2xl text-white">
+          <h1 class="text-3xl md:text-5xl font-bold mb-4 font-heading leading-tight">
+            Uniting the UK Against <br />Scams &amp; Fraud
+          </h1>
+
+          <p class="text-lg md:text-xl mb-6">
+            The ScamRegistry is the UK’s central hub for <br />supporting the prevention of scams and frauds.
+          </p>
+          <p class="italic mb-8">Together we can protect each other.</p>
+
+          <div class="flex flex-col sm:flex-row gap-4">
+            <a href="/report"
+              class="bg-secondary hover:bg-red-700 text-white font-medium px-6 py-3 rounded-md text-center transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-white/80"
+              aria-label="Report a scam">
+              Report a Scam
+            </a>
+            <a href="/check"
+              class="bg-secondary hover:bg-red-700 text-white font-medium px-6 py-3 rounded-md text-center transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-white/80"
+              aria-label="Check if something is a scam">
+              Check a Scam
+            </a>
+          </div>
+        </div>
+
+        <!-- Right: Coming Soon badge (optional include) -->
+        <div class="relative z-10">{% include "includes/coming_soon.html" %}</div>
+
+      </div>
+    </div>

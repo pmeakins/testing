@@ -1,6 +1,7 @@
 boto3
 pandas
 django
+pyyaml
 bs4
 whitenoise
 dnspython

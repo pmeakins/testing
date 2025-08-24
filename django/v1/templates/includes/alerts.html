@@ -1,74 +1,72 @@
   <style>
-  .alert-rotator {
-  font-size: 1.2rem;
-  {% comment %} font-weight: bold; {% endcomment %}
-  min-height: 2rem;
-  display: flex;
-  align-items: center;
-}
+    .alert-rotator {
+      font-size: 1.2rem;
 
-.alert-item {
-  opacity: 0;
-  transition: opacity 0.5s ease-in-out;
-  position: absolute; /* Overlay items to prevent layout shifts */
-}
+        {
+        % comment %
+      }
 
-.alert-item.active {
-  opacity: 1;
-}
+      font-weight: bold;
+
+        {
+        % endcomment %
+      }
+
+      min-height: 2rem;
+      display: flex;
+      align-items: center;
+    }
+
+    .alert-item {
+      opacity: 0;
+      transition: opacity 0.5s ease-in-out;
+      position: absolute;
+      /* Overlay items to prevent layout shifts */
+    }
+
+    .alert-item.active {
+      opacity: 1;
+    }
     }
   </style>
 
   <div class="report-scam">
 
-  <div class="alert-rotator" id="alert-rotator">
-    {% for line in alerts %}
+    <div class="alert-rotator" id="alert-rotator">
+      {% for line in alerts %}
       <div class="alert-item{% if forloop.first %} active{% endif %}">
         {{ line }}
       </div>
-    {% endfor %}
+      {% endfor %}
+    </div>
   </div>
-</div>
 
   <script>
-   (function() {
-  const items = document.querySelectorAll('#alert-rotator .alert-item');
-  if (!items.length) return;
+    (function() {
+      const items = document.querySelectorAll('#alert-rotator .alert-item');
+      if (!items.length) return;
+      const urlParams = new URLSearchParams(window.location.search);
+      const interval = parseInt(urlParams.get('t'), 10) || 5000;
+      const fadeTime = 500; // Should match CSS transition duration
+      let index = 0;
 
-  const urlParams = new URLSearchParams(window.location.search);
-  const interval = parseInt(urlParams.get('t'), 10) || 5000;
-  const fadeTime = 500; // Should match CSS transition duration
-
-  let index = 0;
-
-  function rotateFade() {
-    // Fade out current item
-    items[index].style.opacity = 0;
-
-    setTimeout(() => {
-      // Remove active class from current item
-      items[index].classList.remove('active');
-
-      // Move to next item
-      index = (index + 1) % items.length;
-
-      // Add active class to new item and fade in
-      items[index].classList.add('active');
-
-      // Small delay to ensure class is applied before opacity change
-      setTimeout(() => {
-        items[index].style.opacity = 1;
-      }, 50);
-
-    }, fadeTime);
-  }
-
-  // Start the rotation
-  setInterval(rotateFade, interval);
-})();
-
+      function rotateFade() {
+        // Fade out current item
+        items[index].style.opacity = 0;
+        setTimeout(() => {
+          // Remove active class from current item
+          items[index].classList.remove('active');
+          // Move to next item
+          index = (index + 1) % items.length;
+          // Add active class to new item and fade in
+          items[index].classList.add('active');
+          // Small delay to ensure class is applied before opacity change
+          setTimeout(() => {
+            items[index].style.opacity = 1;
+          }, 50);
+        }, fadeTime);
+      }
+      // Start the rotation
+      setInterval(rotateFade, interval);
+    })();
   </script>
-
-
-
-
