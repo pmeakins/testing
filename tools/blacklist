@@ -1,0 +1,110 @@
+import dns.resolver
+import socket
+from concurrent.futures import ThreadPoolExecutor, as_completed
+
+def get_mx_records(domain):
+    """Get MX records for a domain"""
+    try:
+        answers = dns.resolver.resolve(domain, 'MX')
+        mx_records = []
+        for rdata in answers:
+            mx_records.append({
+                'preference': rdata.preference,
+                'exchange': str(rdata.exchange).rstrip('.')
+            })
+        return sorted(mx_records, key=lambda x: x['preference'])
+    except Exception as e:
+        print(f"Error getting MX records for {domain}: {e}")
+        return None
+
+def get_ip_address(hostname):
+    """Get IP address from hostname"""
+    try:
+        return socket.gethostbyname(hostname)
+    except socket.gaierror:
+        return None
+
+def check_dnsbl(ip, dnsbl_server):
+    """Check if IP is listed in a specific DNSBL"""
+    try:
+        # Reverse the IP and append DNSBL domain
+        reversed_ip = '.'.join(ip.split('.')[::-1])
+        query = f"{reversed_ip}.{dnsbl_server}"
+        
+        # Perform the DNS lookup
+        dns.resolver.resolve(query, 'A')
+        return True  # Listed if we get a response
+    except dns.resolver.NXDOMAIN:
+        return False  # Not listed
+    except Exception as e:
+        return f"Error: {str(e)}"
+
+def check_email_blocklists(email):
+    """Main function to check if email/domain is blocklisted"""
+    domain = email.split('@')[-1]
+    
+    print(f"Checking domain: {domain}")
+    
+    # Get MX records
+    mx_records = get_mx_records(domain)
+    if not mx_records:
+        print("No MX records found")
+        return
+    
+    # Get IP of primary mail server
+    primary_mx = mx_records[0]['exchange']
+    mx_ip = get_ip_address(primary_mx)
+    
+    if not mx_ip:
+        print(f"Could not resolve IP for {primary_mx}")
+        return
+    
+    print(f"Primary MX: {primary_mx} -> IP: {mx_ip}")
+    
+    # List of common DNSBLs to check
+    dnsbl_servers = [
+        'zen.spamhaus.org',
+        'bl.spamcop.net',
+        'b.barracudacentral.org',
+        'dnsbl.sorbs.net',
+        'psbl.surriel.com',
+        'cbl.abuseat.org',
+        'dnsbl-1.uceprotect.net',
+        'spam.dnsbl.sorbs.net',
+        'bl.mailspike.net'
+    ]
+    
+    results = {}
+    
+    # Check all DNSBLs in parallel for faster results
+    with ThreadPoolExecutor(max_workers=10) as executor:
+        future_to_dnsbl = {
+            executor.submit(check_dnsbl, mx_ip, dnsbl): dnsbl 
+            for dnsbl in dnsbl_servers
+        }
+        
+        for future in as_completed(future_to_dnsbl):
+            dnsbl = future_to_dnsbl[future]
+            try:
+                results[dnsbl] = future.result()
+            except Exception as e:
+                results[dnsbl] = f"Failed: {str(e)}"
+    
+    # Print results
+    print("\n--- Blocklist Results ---")
+    listed_count = 0
+    for dnsbl, status in results.items():
+        status_str = "LISTED" if status is True else "Not listed" if status is False else status
+        if status is True:
+            listed_count += 1
+            print(f"❌ {dnsbl}: {status_str}")
+        else:
+            print(f"✅ {dnsbl}: {status_str}")
+    
+    print(f"\nSummary: {listed_count} blocklist(s) found the IP")
+
+# Example usage
+if __name__ == "__main__":
+    email = "painful_knees@nerves.sa.com"  # Replace with email to check
+    email = "phil@your.it"  # Replace with email to check
+    check_email_blocklists(email)

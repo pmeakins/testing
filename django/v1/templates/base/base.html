@@ -1,156 +1,209 @@
 {% load static %}
 
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en" class="fontawesome-i2svg-active fontawesome-i2svg-complete">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ScamRegistry - UK Central Hub for Scam/Fraud Reporting</title>
 
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>ScamRegistry - UK Central Hub for Scam/Fraud Reporting</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;500;600;700;800;900&display=swap" rel="stylesheet" />
 
-  <!-- Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;500;600;700;800;900&display=swap"
-    rel="stylesheet">
+    <!-- Your compiled styles -->
+    <link rel="stylesheet" href="{% static 'css/dist/styles.css' %}" />
 
-  <!-- Your compiled styles -->
-  <link rel="stylesheet" href="{% static 'css/dist/styles.css' %}">
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/..." crossorigin="anonymous"></script>
+    <script>
+      // CSRF from cookie (works for all forms)
+      function getCookie(n) {
+        const m = document.cookie.match('(^|;)\\s*' + n + '\\s*=\\s*([^;]+)')
+        return m ? m.pop() : ''
+      }
+      $.ajaxSetup({
+        beforeSend: function (xhr, s) {
+          if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(s.type)) {
+            xhr.setRequestHeader('X-CSRFToken', getCookie('csrftoken'))
+          }
+          xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest')
+        }
+      })
 
-  <!-- Tailwind (CDN) -->
-  <script src="https://cdn.tailwindcss.com/"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            primary: "#0c326f",
-            secondary: "#e63946",
-            accent: "#1d3557",
-            light: "#f1faee",
-            dark: "#1d3557"
-          },
-          fontFamily: {
-            sans: ["Inter", "sans-serif"],
-            heading: ["Montserrat", "sans-serif"]
+      $(document).on('submit', 'form.ajax', function (e) {
+        e.preventDefault()
+        const $f = $(this)
+        const $t = $($f.data('target'))
+        $.post($f.attr('action'), $f.serialize())
+          .done((html) => $t.html(html))
+          .fail(() => $t.html('Error'))
+      })
+    </script>
+
+    <!-- Tailwind (CDN) -->
+    <script src="https://cdn.tailwindcss.com/"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: '#0c326f',
+              secondary: '#e63946',
+              accent: '#1d3557',
+              light: '#f1faee',
+              dark: '#1d3557'
+            },
+            fontFamily: {
+              sans: ['Inter', 'sans-serif'],
+              heading: ['Montserrat', 'sans-serif']
+            }
           }
         }
       }
-    };
-  </script>
+    </script>
 
-  <!-- Font Awesome (keep SVG replacement) -->
-  <script>
-    window.FontAwesomeConfig = {
-      autoReplaceSvg: 'nest'
-    };
-  </script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous"
-    referrerpolicy="no-referrer"></script>
+    <!-- Font Awesome (keep SVG replacement) -->
+    <script>
+      window.FontAwesomeConfig = {
+        autoReplaceSvg: 'nest'
+      }
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
-  <!-- Page styles -->
-  <style>
-    body {
-      font-family: 'Inter', sans-serif !important;
-    }
+    <!-- Page styles -->
+    <style>
+      body {
+        font-family: 'Inter', sans-serif !important;
+      }
 
-    /* Preserve Font Awesome icons */
-    .fa,
-    .fas,
-    .far,
-    .fal,
-    .fab {
-      font-family: "Font Awesome 6 Free", "Font Awesome 6 Brands" !important;
-    }
+      /* Preserve Font Awesome icons */
+      .fa,
+      .fas,
+      .far,
+      .fal,
+      .fab {
+        font-family: 'Font Awesome 6 Free', 'Font Awesome 6 Brands' !important;
+      }
 
-    .highlighted-section {
-      outline: 2px solid #3F20FB;
-      background-color: rgba(63, 32, 251, 0.1);
-    }
+      .highlighted-section {
+        outline: 2px solid #3f20fb;
+        background-color: rgba(63, 32, 251, 0.1);
+      }
 
-    .edit-button {
-      position: absolute;
-      z-index: 1000;
-    }
+      .edit-button {
+        position: absolute;
+        z-index: 1000;
+      }
 
-    ::-webkit-scrollbar {
-      display: none;
-    }
+      ::-webkit-scrollbar {
+        display: none;
+      }
 
-    html,
-    body {
-      -ms-overflow-style: none;
-      scrollbar-width: none;
-    }
-  </style>
-</head>
+      html,
+      body {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+    </style>
+  </head>
 
-<body class="bg-gray-50 font-sans">
-  <!-- Top Bar -->
-  {% comment %} <div class="header-lower">{% include "includes/top_bar.html" %}</div> {% endcomment %}
-  <!-- Top Bar -->
+  <body class="bg-gray-50 font-sans">
+    <!-- Top Bar -->
+    {% comment %} <div class="header-lower">
+      {% include 'includes/top_bar.html' %}
+    </div> {% endcomment %}
+    <!-- Top Bar -->
 
-  <!-- Header -->
-  {% comment %} <div class="header-lower">{% include "includes/header_bar.html" %}</div> {% endcomment %}
-  <!-- Header -->
+    <!-- Header -->
+    {% comment %} <div class="header-lower">
+      {% include 'includes/header_bar.html' %}
+    </div> {% endcomment %}
+    <!-- Header -->
 
-  <!-- Banner -->
-  {% comment %} <div class="header-lower">{% include "includes/scammer_banner.html" %}</div> {% endcomment %}
+    <!-- Banner -->
+    {% comment %} <div class="header-lower">
+      {% include 'includes/scammer_banner.html' %}
+    </div> {% endcomment %}
 
-  <!-- Banner -->
+    <!-- Banner -->
 
-  <!-- Alert Bar -->
-  {% comment %} <div class="hidden md:block header-lower">{% include "includes/alerts_bar.html" %}</div> {% endcomment %}
-  <!-- Alert Bar -->
+    <!-- Alert Bar -->
+    {% comment %} <div class="hidden md:block header-lower">
+      {% include 'includes/alerts_bar.html' %}
+    </div> {% endcomment %}
+    <!-- Alert Bar -->
 
-  <!-- Main Content -->
-  <main id="main-content" class="container mx-auto px-4 md:px-8 py-8">
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-      <!-- Main Content Area -->
-      <div class="lg:col-span-2">
-        <!-- Latest Scam Reports Section -->
-        {% comment %} <div class="header-lower">{% include "includes/latest_scams.html" %}</div> {% endcomment %}
-        <!-- Tools -->
-        <div class="header-lower">{% include "includes/tools.html" %}</div>
-        <!-- Trending -->
-        {% comment %} <div class="header-lower">{% include "includes/trends.html" %}</div> {% endcomment %}
+    <!-- Main Content -->
+    <main id="main-content" class="container mx-auto px-4 md:px-8 py-8">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Main Content Area -->
+        <div class="lg:col-span-2">
+          <!-- Latest Scam Reports Section -->
+          {% comment %} <div class="header-lower">
+            {% include 'includes/latest_scams.html' %}
+          </div> {% endcomment %}
+          <!-- Tools -->
+          <div class="header-lower">
+            {% include 'includes/tools.html' %}
+          </div>
+          <!-- Trending -->
+          {% comment %} <div class="header-lower">
+            {% include 'includes/trends.html' %}
+          </div> {% endcomment %}
 
-        <!-- Latest News Section -->
-        {% comment %} <div class="header-lower">{% include "includes/latest_news.html" %}</div> {% endcomment %}
-        <!-- Success Stories -->
-        {% comment %} <div class="header-lower">{% include "includes/success.html" %}</div> {% endcomment %}
+          <!-- Latest News Section -->
+          {% comment %} <div class="header-lower">
+            {% include 'includes/latest_news.html' %}
+          </div> {% endcomment %}
+          <!-- Success Stories -->
+          {% comment %} <div class="header-lower">
+            {% include 'includes/success.html' %}
+          </div> {% endcomment %}
+        </div>
+        <!-- Main Content Area -->
+
+        <!-- Sidebar -->
+        <div class="lg:col-span-1">
+          <!-- Report Scam Form -->
+          {% comment %} <div class="header-lower">
+            {% include 'includes/report_scam.html' %}
+          </div> {% endcomment %}
+          <!-- Live Feed -->
+          {% comment %} <div class="header-lower">
+            {% include 'includes/live_scam_feed.html' %}
+          </div> {% endcomment %}
+          <!-- Scam Map -->
+          {% comment %} <div class="header-lower">
+            {% include 'includes/scam_map.html' %}
+          </div> {% endcomment %}
+          <!-- Resources -->
+          {% comment %} <div class="header-lower">
+            {% include 'includes/quick_resources.html' %}
+          </div> {% endcomment %}
+        </div>
+        <!-- Sidebar -->
       </div>
-      <!-- Main Content Area -->
+    </main>
 
-      <!-- Sidebar -->
-      <div class="lg:col-span-1">
-        <!-- Report Scam Form -->
-        {% comment %} <div class="header-lower">{% include "includes/report_scam.html" %}</div> {% endcomment %}
-        <!-- Live Feed -->
-        {% comment %} <div class="header-lower">{% include "includes/live_scam_feed.html" %}</div> {% endcomment %}
-        <!-- Scam Map -->
-        {% comment %} <div class="header-lower">{% include "includes/scam_map.html" %}</div> {% endcomment %}
-        <!-- Resources -->
-        {% comment %} <div class="header-lower">{% include "includes/quick_resources.html" %}</div> {% endcomment %}
-      </div>
-      <!-- Sidebar -->
-    </div>
-  </main>
+    <!-- Partner Section -->
+    {% comment %} <div class="header-lower">
+      {% include 'includes/partners.html' %}
+    </div> {% endcomment %}
+    <!-- Partner Section -->
 
-  <!-- Partner Section -->
-  {% comment %} <div class="header-lower">{% include "includes/partners.html" %}</div> {% endcomment %}
-  <!-- Partner Section -->
+    <!-- CTA Section -->
+    {% comment %} <div class="header-lower">
+      {% include 'includes/cta.html' %}
+    </div> {% endcomment %}
 
-  <!-- CTA Section -->
-  {% comment %} <div class="header-lower">{% include "includes/cta.html" %}</div> {% endcomment %}
+    <!-- CTA Section -->
 
-  <!-- CTA Section -->
+    <!-- Footer -->
+    {% comment %} <div class="header-lower">
+      {% include 'includes/footer.html' %}
+    </div> {% endcomment %}
 
-  <!-- Footer -->
-  {% comment %} <div class="header-lower">{% include "includes/footer.html" %}</div> {% endcomment %}
-
-  <!-- Footer -->
-
-</body>
-
+    <!-- Footer -->
+  </body>
 </html>

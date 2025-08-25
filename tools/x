@@ -1,0 +1,4 @@
+curl -X POST 'https://api.clearout.io/v2/email_verify/instant' \
+-H 'Authorization: a4f6a382794e46adf8c03c69b2177883:809b4198d27ef739ca0597d8756bafc72af52f273d05198d07e5bf3bde35a09e' \
+-H 'Content-Type: application/json' \
+-d '{ "email": "painful_knees@nerves.sa.com" }'

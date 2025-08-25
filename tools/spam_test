@@ -1,0 +1,36 @@
+import requests
+
+def check_spam_databases(email):
+    """
+    Check email against free spam databases
+    """
+    domain = email.split('@')[-1]
+    
+    # Some free services (check their terms of service)
+    services = {
+        'StopForumSpam': f"https://api.stopforumspam.org/api?email={email}",
+        'HaveIBeenPwned': f"https://haveibeenpwned.com/api/v3/breachedaccount/{email}",
+    }
+    
+    results = {}
+    
+    for service, url in services.items():
+        try:
+            response = requests.get(url, timeout=10)
+            if response.status_code == 200:
+                results[service] = "Found in database" if "found" in response.text.lower() or "true" in response.text.lower() else "Not found"
+            else:
+                results[service] = "Service unavailable"
+        except:
+            results[service] = "Connection failed"
+    
+    return results
+
+# Usage
+email = "painful_knees@nerves.sa.com"
+email = "phil@your.it"
+results = check_spam_databases(email)
+
+print(f"Spam database check for: {email}")
+for service, status in results.items():
+    print(f"{service}: {status}")
