@@ -1,0 +1,264 @@
+{
+  "country": [
+    {
+      "iso_code": "eg",
+      "name": "Ägypten",
+      "domain": "https://eg.tellows.net"
+    },
+    {
+      "iso_code": "dz",
+      "name": "Algerien",
+      "domain": "https://dz.tellows.net"
+    },
+    {
+      "iso_code": "ae",
+      "name": "Arabische Emirate",
+      "domain": "https://ae.tellows.net"
+    },
+    {
+      "iso_code": "ar",
+      "name": "Argentinien",
+      "domain": "https://ar.tellows.net"
+    },
+    {
+      "iso_code": "au",
+      "name": "Australien",
+      "domain": "https://www.tellows-au.com"
+    },
+    {
+      "iso_code": "be",
+      "name": "Belgien",
+      "domain": "https://www.tellows.be"
+    },
+    {
+      "iso_code": "br",
+      "name": "Brasilien",
+      "domain": "https://www.tellows.com.br"
+    },
+    {
+      "iso_code": "cl",
+      "name": "Chile",
+      "domain": "https://cl.tellows.net"
+    },
+    {
+      "iso_code": "cn",
+      "name": "China",
+      "domain": "https://cn.tellows.net"
+    },
+    {
+      "iso_code": "dk",
+      "name": "Dänemark",
+      "domain": "https://dk.tellows.net"
+    },
+    {
+      "iso_code": "de",
+      "name": "Deutschland",
+      "domain": "https://www.tellows.de"
+    },
+    {
+      "iso_code": "fi",
+      "name": "Finnland ",
+      "domain": "https://www.tellows-fi.com"
+    },
+    {
+      "iso_code": "fr",
+      "name": "Frankreich",
+      "domain": "https://www.tellows.fr"
+    },
+    {
+      "iso_code": "gr",
+      "name": "Griechenland",
+      "domain": "https://www.tellows.gr"
+    },
+    {
+      "iso_code": "gb",
+      "name": "Großbritannien",
+      "domain": "https://www.tellows.co.uk"
+    },
+    {
+      "iso_code": "hk",
+      "name": "Hongkong",
+      "domain": "https://hk.tellows.asia"
+    },
+    {
+      "iso_code": "in",
+      "name": "Indien",
+      "domain": "https://www.tellows.in"
+    },
+    {
+      "iso_code": "id",
+      "name": "Indonesien",
+      "domain": "https://id.tellows.net"
+    },
+    {
+      "iso_code": "ir",
+      "name": "Iran",
+      "domain": "https://ir.tellows.net"
+    },
+    {
+      "iso_code": "ie",
+      "name": "Irland",
+      "domain": "https://ie.tellows.net"
+    },
+    {
+      "iso_code": "il",
+      "name": "Israel",
+      "domain": "https://il.tellows.org"
+    },
+    {
+      "iso_code": "it",
+      "name": "Italien",
+      "domain": "https://www.tellows.it"
+    },
+    {
+      "iso_code": "jp",
+      "name": "Japan",
+      "domain": "https://www.tellows.jp"
+    },
+    {
+      "iso_code": "co",
+      "name": "Kolumbien",
+      "domain": "https://www.tellows.co"
+    },
+    {
+      "iso_code": "mx",
+      "name": "Mexiko",
+      "domain": "https://www.tellows.mx"
+    },
+    {
+      "iso_code": "nz",
+      "name": "Neuseeland",
+      "domain": "https://www.tellows.co.nz"
+    },
+    {
+      "iso_code": "nl",
+      "name": "Niederlande",
+      "domain": "https://www.tellows.nl"
+    },
+    {
+      "iso_code": "ng",
+      "name": "Nigeria",
+      "domain": "https://www.tellows-ng.com"
+    },
+    {
+      "iso_code": "no",
+      "name": "Norwegen",
+      "domain": "https://no.tellows.net"
+    },
+    {
+      "iso_code": "at",
+      "name": "Österreich",
+      "domain": "https://www.tellows.at"
+    },
+    {
+      "iso_code": "pk",
+      "name": "Pakistan",
+      "domain": "https://pk.tellows.net"
+    },
+    {
+      "iso_code": "pe",
+      "name": "Peru",
+      "domain": "https://pe.tellows.net"
+    },
+    {
+      "iso_code": "ph",
+      "name": "Philippinen",
+      "domain": "https://ph.tellows.net"
+    },
+    {
+      "iso_code": "pl",
+      "name": "Polen",
+      "domain": "https://www.tellows.pl"
+    },
+    {
+      "iso_code": "pt",
+      "name": "Portugal",
+      "domain": "https://www.tellows.pt"
+    },
+    {
+      "iso_code": "ru",
+      "name": "Russland",
+      "domain": "https://www.tellows.ru"
+    },
+    {
+      "iso_code": "sa",
+      "name": "Saudi Arabien",
+      "domain": "https://sa.tellows.net"
+    },
+    {
+      "iso_code": "se",
+      "name": "Schweden",
+      "domain": "https://www.tellows.se"
+    },
+    {
+      "iso_code": "ch",
+      "name": "Schweiz",
+      "domain": "https://www.tellows.ch"
+    },
+    {
+      "iso_code": "sg",
+      "name": "Singapur",
+      "domain": "https://sg.tellows.asia"
+    },
+    {
+      "iso_code": "si",
+      "name": "Slowenien",
+      "domain": "https://si.tellows.org"
+    },
+    {
+      "iso_code": "es",
+      "name": "Spanien",
+      "domain": "https://www.tellows.es"
+    },
+    {
+      "iso_code": "za",
+      "name": "Südafrika",
+      "domain": "https://www.tellows.co.za"
+    },
+    {
+      "iso_code": "kr",
+      "name": "Südkorea",
+      "domain": "https://kr.tellows.asia"
+    },
+    {
+      "iso_code": "tw",
+      "name": "Taiwan",
+      "domain": "https://www.tellows.tw"
+    },
+    {
+      "iso_code": "cz",
+      "name": "Tschechien",
+      "domain": "https://www.tellows.cz"
+    },
+    {
+      "iso_code": "tr",
+      "name": "Türkei",
+      "domain": "https://www.tellows-tr.com"
+    },
+    {
+      "iso_code": "ua",
+      "name": "Ukraine",
+      "domain": "https://ua.tellows.org"
+    },
+    {
+      "iso_code": "hu",
+      "name": "Ungarn",
+      "domain": "https://www.tellows.hu"
+    },
+    {
+      "iso_code": "us",
+      "name": "USA, Kanada",
+      "domain": "https://www.tellows.com"
+    },
+    {
+      "iso_code": "ve",
+      "name": "Venezuela",
+      "domain": "https://ve.tellows.net"
+    },
+    {
+      "iso_code": "by",
+      "name": "Weißrussland",
+      "domain": "https://by.tellows.org"
+    }
+  ]
+}

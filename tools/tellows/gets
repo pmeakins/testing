@@ -1,0 +1,15 @@
+#curl -k "https://www.tellows.co.uk/stats/partnerscoredata?apikeyMd5=c94eabde3ae76eeabfd5758256aa1b8d&country=uk&lang=uk&limit=10&mosttagged=1&minscore=1&mincomments=3&showdeeplink=1&showcallertypeid=1&showcallername=1&showprefixname=1&userapikey=1&just=1"
+
+
+mkdir -p country
+
+for x in $(cat domains)
+do
+echo $x
+ > tmp
+ c=$(echo $x |  awk -F'\/\/' '{print $2}' )
+ curl -k "${x}/stats/partnerscoredata?apikeyMd5=c94eabde3ae76eeabfd5758256aa1b8d&mosttagged=1&minscore=1&mincomments=0&showdeeplink=1&showcallertypeid=1&showcallername=1&showprefixname=1" > tmp
+ cp tmp country/${c}
+
+done
+

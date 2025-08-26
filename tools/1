@@ -1,0 +1,30 @@
+#!/usr/bin/env python3
+import argparse
+import json
+import sys
+from ipqs_phone import validate_phone, summarize_result, IPQSPhoneValidationError
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Check a phone number using IPQualityScore's advanced phone validation API."
+    )
+    parser.add_argument("-n", "--number", required=True, help="Phone number (E.164 recommended, e.g. +447700900123)")
+    parser.add_argument("-c", "--country", action="append", help="Country hint(s). Repeatable.")
+    parser.add_argument("-s", "--strictness", type=int, choices=[0,1,2], default=1, help="Strictness level (0–2)")
+    parser.add_argument("--json", action="store_true", help="Print full JSON response")
+
+    args = parser.parse_args()
+
+    try:
+        result = validate_phone(args.number, countries=args.country, strictness=args.strictness)
+        if args.json:
+            print(json.dumps(result, indent=2))
+        else:
+            print(summarize_result(result))
+    except IPQSPhoneValidationError as e:
+        print(f"Error: {e}", file=sys.stderr)
+        sys.exit(1)
+
+if __name__ == "__main__":
+    main()
+

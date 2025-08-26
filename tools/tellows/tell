@@ -1,0 +1,65 @@
+#!/usr/bin/env python3
+import argparse
+import csv
+import io
+import requests
+import sys
+
+# From your license PDF
+PARTNER = "tellowskey"
+APIKEY_MD5 = "c94eabde3ae76eeabfd5758256aa1b8d"
+BASE_URL = "https://www.tellows.de/stats/partnerscoredata"
+
+def lookup_number(number: str):
+    """
+    Query Tellows partner CSV API for a specific phone number.
+    """
+    params = {
+        "partner": PARTNER,
+        "apikeyMd5": APIKEY_MD5,
+        "number": number,          # Tellows allows ?number= in CSV export
+        "showdeeplink": 1,
+        "showcallertypeid": 1,
+        "showcallername": 1,
+        "showprefixname": 1,
+    }
+    try:
+        resp = requests.get(BASE_URL, params=params, timeout=10)
+        resp.raise_for_status()
+        text = resp.text
+        if not text.strip():
+            print("Empty response from Tellows API.")
+            sys.exit(1)
+    except Exception as e:
+        print(f"Error calling Tellows API: {e}", file=sys.stderr)
+        sys.exit(1)
+
+    # Parse CSV response
+    reader = csv.DictReader(io.StringIO(text), delimiter=';')
+    return list(reader)
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Lookup a phone number using Tellows CSV API"
+    )
+    parser.add_argument("number", help="Phone number to look up (e.g. 00442079460123)")
+    args = parser.parse_args()
+
+    results = lookup_number(args.number)
+
+    if not results:
+        print("No data returned.")
+        return
+
+    for row in results:
+        print(f"Number: {row.get('number')}")
+        print(f"Score: {row.get('score')}")
+        print(f"Comments: {row.get('comments')}")
+        print(f"Caller Name: {row.get('callername')}")
+        print(f"Type ID: {row.get('callertypeid')}")
+        print(f"Deeplink: {row.get('deeplink')}")
+        print("-" * 40)
+
+if __name__ == "__main__":
+    main()
+
