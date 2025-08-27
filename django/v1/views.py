@@ -73,8 +73,10 @@ def validate_number(request):
     """
     return HttpResponse(html)
 
+#  End of phone validation
 
-
+#  Start of fraud score
+#  End of fraud score
 
 
 @require_POST
@@ -141,6 +143,7 @@ def _fmt(v):
     if v is False: return "false"
     if v is None: return "null"
     return str(v)
+
 
 @require_POST
 def validate_email(request):
@@ -219,77 +222,3 @@ def validate_email(request):
     return HttpResponse(html_fragment)
 
 
-
-
-ABSTRACT_V2_URL = os.getenv("ABSTRACT_EMAIL_VALIDATION_BASE_URL", "https://emailvalidation.abstractapi.com/v1/")
-
-@require_POST
-def validate_email_v2(request):
-    if not ABSTRACT_KEY:
-        return HttpResponse(
-            '<div class="p-3 rounded bg-red-50 border border-red-200">Missing AbstractAPI key</div>', status=500
-        )
-
-    email = (request.POST.get("email") or "").strip()
-    if not email:
-        return HttpResponse(
-            '<div class="p-3 rounded bg-yellow-50 border border-yellow-200">Please provide an email</div>', status=400
-        )
-
-    try:
-        r = requests.get(
-            ABSTRACT_V2_URL,
-            params={"api_key": ABSTRACT_KEY, "email": email},
-            timeout=8,
-        )
-        r.raise_for_status()
-        data = r.json()
-    except requests.RequestException as e:
-        return HttpResponse(
-            f'<div class="p-3 rounded bg-red-50 border border-red-200">Lookup failed: {html.escape(str(e))}</div>',
-            status=502,
-        )
-    except ValueError:
-        return HttpResponse(
-            '<div class="p-3 rounded bg-red-50 border border-red-200">Invalid JSON from API</div>', status=502
-        )
-
-    # Common top-level fields from AbstractAPI Email Validation:
-    # deliverability, quality_score, is_valid_format.value, is_mx_found.value,
-    # is_smtp_valid.value, is_catchall_email.value, is_disposable_email.value,
-    # is_free_email.value, autocorrect, domain, mx_records, smtp_provider, etc.
-    deliverability = (data.get("deliverability") or "").upper()
-    quality = data.get("quality_score")
-
-    badge_color = {
-        "DELIVERABLE": "bg-green-100 text-green-800 border-green-200",
-        "RISKY": "bg-yellow-100 text-yellow-800 border-yellow-200",
-        "UNDELIVERABLE": "bg-red-100 text-red-800 border-red-200",
-    }.get(deliverability, "bg-gray-100 text-gray-800 border-gray-200")
-
-    # Flatten everything so you get the full payload in a readable table
-    rows = _flatten(data) or [("result", "No data")]
-
-    table_rows = "\n".join(
-        f"<tr><th class='text-left align-top p-2 bg-gray-50 border'>{html.escape(str(k))}</th>"
-        f"<td class='p-2 border'>{html.escape(_fmt(v))}</td></tr>"
-        for k, v in rows
-    )
-
-    html_fragment = f"""
-<div class="p-3 rounded border bg-white">
-  <div class="mb-2 font-semibold">Email check for: <code>{html.escape(email)}</code></div>
-  <div class="mb-2 inline-block rounded border px-2 py-1 text-xs {badge_color}">
-    Deliverability: {html.escape(deliverability or 'UNKNOWN')}
-    {' · Quality: ' + html.escape(str(quality)) if quality is not None else ''}
-  </div>
-  <div class="overflow-auto">
-    <table class="min-w-full border border-collapse text-sm">
-      <tbody>
-        {table_rows}
-      </tbody>
-    </table>
-  </div>
-</div>
-"""
-    return HttpResponse(html_fragment)
