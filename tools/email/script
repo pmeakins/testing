@@ -1,0 +1,600 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+ScamAdvisory — Email diagnostics with:
+- Minimal JSON (WHOIS core, TLS validity + issuer, first IP + geo)
+- Risk score (age, SSL incl. Let's Encrypt, geo, optional reputation)
+- Website discovery from domain + company identity extraction from page source
+- Optional Companies House enrichment if UK company number found
+
+Usage:
+  python email_diags.py user@example.com
+  python email_diags.py user@example.com --verbose
+  python email_diags.py user@example.com --companies-house-key YOUR_KEY
+  python email_diags.py user@example.com --abuseipdb-key ... --ipqs-key ...
+"""
+
+import argparse, json, os, re, socket, ssl
+from datetime import datetime, timezone
+from typing import Dict, Any, List, Optional, Tuple
+
+import dns.resolver
+import requests
+import whois
+from bs4 import BeautifulSoup
+
+# ----------------------------- Configuration -----------------------------
+
+TIMEOUT = 8
+UA = "ScamAdvisoryEmailDiag/1.2 (+https://scamadvisory.co.uk)"
+
+# Geo risk configuration (ISO-3166-1 alpha-2 codes)
+GEO_RISK = {
+    "HIGH":   {"CN", "RU", "BY", "IR", "KP"},
+    "MEDIUM": {"TR", "VN", "ID", "NG", "PK", "BR"},
+    "IMPACT_HIGH": 40,
+    "IMPACT_MEDIUM": 25,
+    "NON_GB_ELEVATE_TO_MEDIUM": True,
+    "NON_GB_NUDGE_IMPACT": 5,
+}
+
+# Reputation providers: enable/disable and weights (set ENABLED to False to skip)
+REPUTATION_CFG = {
+    "DNSBL": {
+        "ENABLED": True,
+        "ZONES": [
+            ("zen.spamhaus.org", 60),
+            ("bl.spamcop.net",   40),
+        ],
+    },
+    "ABUSEIPDB": {"ENABLED": True},  # needs key
+    "IPQS":      {"ENABLED": True},  # needs key
+}
+REPUTATION_WEIGHTS = {
+    "ABUSEIPDB_MULTIPLIER": 0.5, "ABUSEIPDB_CAP": 50,
+    "IPQS_MULTIPLIER": 0.4, "IPQS_CAP": 40,
+}
+
+# Companies House (optional enrichment)
+COMPANIES_HOUSE_API = "https://api.company-information.service.gov.uk/company/"
+
+# ----------------------------- Small helpers -----------------------------
+
+def to_iso(dt) -> Optional[str]:
+    if isinstance(dt, list) and dt:
+        dt = dt[0]
+    if isinstance(dt, datetime):
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=timezone.utc)
+        return dt.astimezone(timezone.utc).isoformat()
+    if isinstance(dt, str):
+        return dt
+    return None
+
+def parse_iso_date(s: Optional[str]) -> Optional[datetime]:
+    if not s: return None
+    try:
+        return datetime.fromisoformat(s.replace("Z", "+00:00"))
+    except Exception:
+        for fmt in ("%Y-%m-%d", "%d/%m/%Y"):
+            try:
+                return datetime.strptime(s, fmt).replace(tzinfo=timezone.utc)
+            except Exception:
+                continue
+    return None
+
+def domain_from_email(email: str) -> str:
+    if "@" not in email:
+        raise ValueError("Provide an email like name@example.com")
+    return email.split("@", 1)[1].strip().lower()
+
+# ----------------------------- DNS/WHOIS/Geo/TLS -----------------------------
+
+def whois_domain_min(domain: str) -> Dict[str, Any]:
+    try:
+        w = whois.whois(domain)
+        domain_name = w.domain_name[0] if isinstance(w.domain_name, list) else w.domain_name
+        return {
+            "domain_name": domain_name,
+            "registrar": w.registrar,
+            "creation_date": to_iso(w.creation_date),
+            "expiration_date": to_iso(w.expiration_date),
+        }
+    except Exception as e:
+        return {"error": f"domain whois failed: {e.__class__.__name__}: {e}"}
+
+def resolve_A(domain: str) -> List[str]:
+    try:
+        r = dns.resolver.Resolver()
+        r.timeout = r.lifetime = TIMEOUT
+        return [a.to_text() for a in r.resolve(domain, "A")]
+    except Exception:
+        return []
+
+def ip_geo_min(ip: str) -> Dict[str, Any]:
+    try:
+        r = requests.get(
+            f"http://ip-api.com/json/{ip}",
+            params={"fields":"status,message,country,countryCode,regionName,city,lat,lon,isp,org"},
+            headers={"User-Agent": UA}, timeout=TIMEOUT
+        )
+        j = r.json()
+        if j.get("status") != "success":
+            return {"error": f"geo failed: {j.get('message')}"}
+        return {
+            "country": j.get("country"),
+            "countryCode": j.get("countryCode"),
+            "region": j.get("regionName"),
+            "city": j.get("city"),
+            "lat": j.get("lat"),
+            "lon": j.get("lon"),
+            "isp": j.get("isp"),
+            "org": j.get("org"),
+        }
+    except Exception as e:
+        return {"error": f"geo failed: {e.__class__.__name__}: {e}"}
+
+def _parse_name_tuple_list(tuples: List[tuple]) -> Dict[str, str]:
+    out = {}
+    for k, v in tuples:
+        out[k] = v
+    return out
+
+def parse_cert_min(cert: Dict[str, Any]) -> Dict[str, Any]:
+    issuer, subject = {}, {}
+    for rdn in cert.get("issuer", []) or []:  issuer.update(_parse_name_tuple_list(rdn))
+    for rdn in cert.get("subject", []) or []: subject.update(_parse_name_tuple_list(rdn))
+
+    not_after = cert.get("notAfter")
+    def parse_dt(s):
+        try:
+            return datetime.strptime(s, "%b %d %H:%M:%S %Y %Z").replace(tzinfo=timezone.utc).isoformat()
+        except Exception:
+            return s
+
+    issuer_cn = issuer.get("commonName")
+    issuer_o  = issuer.get("organizationName")
+    is_le = ("Let's Encrypt" in (issuer_cn or "")) or ("Let's Encrypt" in (issuer_o or ""))
+    is_self = bool(subject and issuer and subject == issuer)
+
+    return {
+        "issuer": {
+            "countryName": issuer.get("countryName"),
+            "organizationName": issuer_o,
+            "commonName": issuer_cn,
+            "not_after": parse_dt(not_after) if not_after else None,
+            "is_self_signed": is_self,
+            "issuer_summary": issuer_cn or issuer_o,
+            "is_lets_encrypt": is_le,
+        }
+    }
+
+def tls_probe(host: str, port: int = 443) -> Dict[str, Any]:
+    out = {"ssl": {"tls_valid": False}}
+    try:
+        ctx = ssl.create_default_context()
+        with socket.create_connection((host, port), timeout=TIMEOUT) as sock:
+            with ctx.wrap_socket(sock, server_hostname=host) as ssock:
+                out["ssl"]["tls_valid"] = True
+                cert = ssock.getpeercert()
+                out.update(parse_cert_min(cert))
+                return out
+    except Exception:
+        pass
+    try:
+        ctx = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
+        ctx.check_hostname = False; ctx.verify_mode = ssl.CERT_NONE
+        with socket.create_connection((host, port), timeout=TIMEOUT) as sock:
+            with ctx.wrap_socket(sock, server_hostname=host) as ssock:
+                cert = ssock.getpeercert()
+                out.update(parse_cert_min(cert))
+    except Exception:
+        pass
+    return out
+
+# ----------------------------- Website discovery & company extraction -----------------------------
+
+DISCOVERY_CANDIDATES = ["https://{d}", "https://www.{d}", "http://{d}", "http://www.{d}"]
+
+def discover_site(domain: str) -> Tuple[Optional[str], Optional[int], Optional[str]]:
+    """
+    Return (final_url, status_code, error) for the first candidate that responds.
+    """
+    sess = requests.Session()
+    sess.headers.update({"User-Agent": UA})
+    for tmpl in DISCOVERY_CANDIDATES:
+        url = tmpl.format(d=domain)
+        try:
+            r = sess.get(url, timeout=TIMEOUT, allow_redirects=True)
+            if r.status_code < 400 and r.text:
+                return (r.url, r.status_code, None)
+            # Accept 4xx/5xx with body as a clue too, but prefer 2xx
+            if r.text and r.status_code < 600:
+                return (r.url, r.status_code, None)
+        except Exception as e:
+            last_err = f"{e.__class__.__name__}: {e}"
+            continue
+    return (None, None, locals().get("last_err", "no_candidate_responded"))
+
+ORG_TYPES = {"Organization","LocalBusiness","Corporation","Airline","NGO","EducationalOrganization","GovernmentOrganization"}
+
+RE_COMPANY_NO = re.compile(r"(Company|Registration|Reg|CRN)\s*(No\.?|Number)?\s*[:#]?\s*([0-9]{8})", re.I)
+RE_VAT_GB = re.compile(r"\b(VAT|UK VAT|VAT No\.?)\s*[:#]?\s*(GB\s*)?(\d{9})\b", re.I)
+RE_COPYRIGHT = re.compile(r"©\s*(\d{4})(?:-\d{4})?\s*(.+)")
+
+def extract_company_from_html(html: str, base_url: str) -> Dict[str, Any]:
+    """
+    Parse HTML to find company identity using JSON-LD, meta tags, and footer text.
+    Returns a compact profile + evidence.
+    """
+    soup = BeautifulSoup(html, "lxml") if html and "<" in html else BeautifulSoup(html, "html.parser")
+
+    profile: Dict[str, Any] = {
+        "name": None,
+        "legalName": None,
+        "company_number": None,
+        "vat_number": None,
+        "address": None,
+        "email": None,
+        "telephone": None,
+        "sameAs": [],
+        "evidence": [],
+        "confidence": 0
+    }
+
+    def add_evidence(kind, value):
+        profile["evidence"].append({"type": kind, "value": value})
+
+    # 1) JSON-LD blocks
+    for script in soup.find_all("script", {"type": "application/ld+json"}):
+        try:
+            data = json.loads(script.string or "")
+        except Exception:
+            continue
+
+        # Normalize to list
+        blocks = data if isinstance(data, list) else [data]
+        for obj in blocks:
+            if not isinstance(obj, dict): continue
+            t = obj.get("@type")
+            if isinstance(t, list):
+                tset = set(t)
+            else:
+                tset = {t} if t else set()
+
+            if ORG_TYPES & tset:
+                name = obj.get("name") or obj.get("legalName")
+                legal = obj.get("legalName") or obj.get("name")
+                tel   = obj.get("telephone")
+                email = obj.get("email")
+                sameAs = obj.get("sameAs")
+                addr = obj.get("address")
+                if isinstance(addr, dict):
+                    # Build one-line address
+                    parts = [addr.get(k) for k in ("streetAddress","addressLocality","addressRegion","postalCode","addressCountry")]
+                    addr = ", ".join([p for p in parts if p])
+
+                if name and not profile["name"]:
+                    profile["name"] = name; add_evidence("jsonld.name", name); profile["confidence"] += 25
+                if legal and not profile["legalName"]:
+                    profile["legalName"] = legal; add_evidence("jsonld.legalName", legal); profile["confidence"] += 15
+                if tel and not profile["telephone"]:
+                    profile["telephone"] = tel; add_evidence("jsonld.telephone", tel)
+                if email and not profile["email"]:
+                    profile["email"] = email; add_evidence("jsonld.email", email)
+                if addr and not profile["address"]:
+                    profile["address"] = addr; add_evidence("jsonld.address", addr)
+                if sameAs:
+                    if isinstance(sameAs, str): sameAs = [sameAs]
+                    profile["sameAs"].extend([s for s in sameAs if isinstance(s, str)])
+
+    # 2) Open Graph / Twitter meta tags
+    meta = { (m.get("property") or m.get("name") or "").lower(): m.get("content") for m in soup.find_all("meta") }
+    for key in ("og:site_name","og:title","twitter:title"):
+        v = meta.get(key)
+        if v and not profile["name"]:
+            profile["name"] = v; add_evidence(key, v); profile["confidence"] += 10
+    if meta.get("og:email") and not profile["email"]:
+        profile["email"] = meta.get("og:email"); add_evidence("og:email", profile["email"])
+    if meta.get("og:phone_number") and not profile["telephone"]:
+        profile["telephone"] = meta.get("og:phone_number"); add_evidence("og:phone_number", profile["telephone"])
+
+    # 3) Footer/legal text heuristics
+    text = soup.get_text(separator="\n", strip=True)[:200000]  # cap for safety
+    # Company number
+    m = RE_COMPANY_NO.search(text)
+    if m and not profile["company_number"]:
+        profile["company_number"] = m.group(3)
+        add_evidence("legal.company_number", m.group(0)); profile["confidence"] += 25
+    # VAT
+    m = RE_VAT_GB.search(text)
+    if m and not profile["vat_number"]:
+        vat = ("GB" if m.group(2) else "") + m.group(3)
+        profile["vat_number"] = vat
+        add_evidence("legal.vat_number", m.group(0))
+    # Copyright line often contains trading/brand name
+    m = RE_COPYRIGHT.search(text)
+    if m and not profile["name"]:
+        nm = m.group(2).strip()
+        if len(nm) < 120:
+            profile["name"] = nm
+            add_evidence("copyright.owner", nm); profile["confidence"] += 5
+
+    # Deduplicate sameAs
+    profile["sameAs"] = sorted(list({s for s in profile["sameAs"] if isinstance(s, str)}))
+
+    return profile
+
+def enrich_companies_house(company_no: str, api_key: Optional[str]) -> Optional[Dict[str, Any]]:
+    if not api_key or not company_no: return None
+    try:
+        r = requests.get(
+            COMPANIES_HOUSE_API + company_no,
+            auth=(api_key, ""), headers={"User-Agent": UA}, timeout=TIMEOUT
+        )
+        if r.status_code != 200:
+            return {"error": f"CH status {r.status_code}", "body": r.text[:200]}
+        j = r.json()
+        return {
+            "company_number": j.get("company_number"),
+            "company_name": j.get("company_name"),
+            "company_status": j.get("company_status"),
+            "date_of_creation": j.get("date_of_creation"),
+            "registered_office_address": j.get("registered_office_address"),
+            "sic_codes": j.get("sic_codes"),
+        }
+    except Exception as e:
+        return {"error": f"CH failed: {e.__class__.__name__}: {e}"}
+
+# ----------------------------- Reputation providers -----------------------------
+
+def dnsbl_lookup(ip: str, zones: List[tuple]) -> List[Dict[str, Any]]:
+    hits = []
+    try:
+        octs = ip.split(".")
+        if len(octs) != 4: return hits
+        reversed_ip = ".".join(reversed(octs))
+        r = dns.resolver.Resolver(); r.timeout = r.lifetime = TIMEOUT
+        for zone, weight in zones:
+            qname = f"{reversed_ip}.{zone}"
+            try:
+                r.resolve(qname, "A")
+                txt = []
+                try:
+                    txt = [t.to_text().strip('"') for t in r.resolve(qname, "TXT")]
+                except Exception:
+                    pass
+                hits.append({"zone": zone, "weight": weight, "txt": txt})
+                break
+            except Exception:
+                continue
+    except Exception:
+        pass
+    return hits
+
+def abuseipdb_check(ip: str, api_key: Optional[str]) -> Optional[Dict[str, Any]]:
+    if not api_key: return None
+    try:
+        r = requests.get(
+            "https://api.abuseipdb.com/api/v2/check",
+            headers={"Key": api_key, "Accept": "application/json", "User-Agent": UA},
+            params={"ipAddress": ip, "maxAgeInDays": 365},
+            timeout=TIMEOUT,
+        )
+        if r.status_code != 200:
+            return {"error": f"abuseipdb status {r.status_code}", "body": r.text[:200]}
+        data = r.json().get("data", {})
+        return {"confidence_score": data.get("abuseConfidenceScore"), "total_reports": data.get("totalReports")}
+    except Exception as e:
+        return {"error": f"abuseipdb failed: {e.__class__.__name__}: {e}"}
+
+def ipqs_ip_check(ip: str, api_key: Optional[str]) -> Optional[Dict[str, Any]]:
+    if not api_key: return None
+    try:
+        r = requests.get(
+            f"https://ipqualityscore.com/api/json/ip/{api_key}/{ip}",
+            params={"strictness": 1, "allow_public_access_points": "true"},
+            headers={"User-Agent": UA},
+            timeout=TIMEOUT,
+        )
+        if r.status_code != 200:
+            return {"error": f"ipqs status {r.status_code}", "body": r.text[:200]}
+        j = r.json()
+        return {
+            "fraud_score": j.get("fraud_score"),
+            "proxy": j.get("proxy"),
+            "vpn": j.get("vpn"),
+            "tor": j.get("tor"),
+            "recent_abuse": j.get("recent_abuse"),
+        }
+    except Exception as e:
+        return {"error": f"ipqs failed: {e.__class__.__name__}: {e}"}
+
+# ----------------------------- Risk Scoring -----------------------------
+
+def compute_risk(whois_min: Dict[str, Any], ssl_min: Dict[str, Any], ip_details: List[Dict[str, Any]],
+                 rep: Dict[str, Any]) -> Dict[str, Any]:
+    score = 0
+    signals = []
+
+    # Domain age
+    creation_iso = whois_min.get("creation_date")
+    created_dt = parse_iso_date(creation_iso) if creation_iso else None
+    now = datetime.now(timezone.utc)
+    if not created_dt:
+        score += 10; signals.append({"signal":"missing_creation_date","impact":+10})
+        age_days = None
+    else:
+        age_days = (now - created_dt).days
+        if age_days < 7:   score += 40; signals.append({"signal":"age_<7d","impact":+40,"age_days":age_days})
+        elif age_days < 90:  score += 25; signals.append({"signal":"age_7d_to_3m","impact":+25,"age_days":age_days})
+        elif age_days < 180: score += 12; signals.append({"signal":"age_3m_to_6m","impact":+12,"age_days":age_days})
+        elif age_days < 365: score += 5;  signals.append({"signal":"age_6m_to_12m","impact":+5,"age_days":age_days})
+        else:                score -= 15; signals.append({"signal":"age_>12m","impact":-15,"age_days":age_days})
+
+    # SSL
+    tls_valid = ssl_min.get("ssl", {}).get("tls_valid", False)
+    issuer = ssl_min.get("issuer", {}) if "issuer" in ssl_min else {}
+    is_self = bool(issuer.get("is_self_signed"))
+    is_le = bool(issuer.get("is_lets_encrypt"))
+    if not tls_valid: score += 40; signals.append({"signal":"tls_invalid_or_absent","impact":+40})
+    else:
+        if not is_le: score -= 10; signals.append({"signal":"tls_valid_non_LE","impact":-10})
+    if is_self: score += 30; signals.append({"signal":"self_signed","impact":+30})
+    if is_le:
+        le_impact = 45
+        if created_dt and (now - created_dt).days < 90: le_impact += 10
+        score += le_impact; signals.append({"signal":"lets_encrypt","impact":le_impact})
+
+    # GEO (first IP)
+    cc = None
+    if ip_details and isinstance(ip_details[0].get("geo"), dict):
+        cc = ip_details[0]["geo"].get("countryCode")
+    if cc is None: score += 5; signals.append({"signal":"geo_unknown","impact":+5})
+    else:
+        if cc in GEO_RISK["HIGH"]:
+            imp = GEO_RISK["IMPACT_HIGH"]; score += imp; signals.append({"signal":f"geo_high:{cc}","impact":+imp})
+        elif cc in GEO_RISK["MEDIUM"]:
+            imp = GEO_RISK["IMPACT_MEDIUM"]; score += imp; signals.append({"signal":f"geo_medium:{cc}","impact":+imp})
+        elif cc != "GB":
+            tmp = max(0, min(100, score))
+            label = "Low" if tmp < 25 else ("Medium" if tmp < 50 else ("High" if tmp < 75 else "Critical"))
+            if GEO_RISK["NON_GB_ELEVATE_TO_MEDIUM"] and label == "Low":
+                delta = max(0, 25 - tmp); score += delta; signals.append({"signal":f"geo_non_gb_elevate:{cc}","impact":+delta})
+            else:
+                nudge = GEO_RISK["NON_GB_NUDGE_IMPACT"]
+                if nudge: score += nudge; signals.append({"signal":f"geo_non_gb_nudge:{cc}","impact":+nudge})
+
+    # REPUTATION (first IP)
+    ip = ip_details[0]["ip"] if ip_details else None
+    if ip:
+        dnsbl_hits = rep.get("dnsbl_hits") or []
+        if dnsbl_hits:
+            h = dnsbl_hits[0]
+            score += h["weight"]; signals.append({"signal":f"dnsbl_listed:{h['zone']}", "impact":+h["weight"], "txt": h.get("txt")})
+        a = rep.get("abuseipdb")
+        if isinstance(a, dict) and isinstance(a.get("confidence_score"), (int,float)):
+            impact = min(a["confidence_score"] * REPUTATION_WEIGHTS["ABUSEIPDB_MULTIPLIER"], REPUTATION_WEIGHTS["ABUSEIPDB_CAP"])
+            score += impact; signals.append({"signal":"abuseipdb_confidence","impact":+impact,"confidence":a["confidence_score"]})
+        q = rep.get("ipqs")
+        if isinstance(q, dict) and isinstance(q.get("fraud_score"), (int,float)):
+            impact = min(q["fraud_score"] * REPUTATION_WEIGHTS["IPQS_MULTIPLIER"], REPUTATION_WEIGHTS["IPQS_CAP"])
+            score += impact; signals.append({"signal":"ipqs_fraud_score","impact":+impact,"fraud_score":q["fraud_score"]})
+
+    score = max(0, min(100, int(round(score))))
+    if score >= 75:  label = "Critical"
+    elif score >= 50: label = "High"
+    elif score >= 25: label = "Medium"
+    else:            label = "Low"
+    return {"risk_score": score, "risk_label": label, "signals": signals}
+
+# ----------------------------- Main diag -----------------------------
+
+def diag(email: str, verbose: bool, abuseipdb_key: Optional[str], ipqs_key: Optional[str],
+         companies_house_key: Optional[str]) -> Dict[str, Any]:
+    domain = domain_from_email(email)
+
+    whois_min = whois_domain_min(domain)
+
+    A = resolve_A(domain)
+    probe_host = domain if A else f"www.{domain}"
+    ssl_min = tls_probe(probe_host)
+
+    ip_details = []
+    if A:
+        ip = A[0]
+        ip_details.append({"ip": ip, "geo": ip_geo_min(ip)})
+
+    # Reputation checks (first IP)
+    rep: Dict[str, Any] = {}
+    if ip_details:
+        ip = ip_details[0]["ip"]
+        if REPUTATION_CFG["DNSBL"]["ENABLED"]:
+            rep["dnsbl_hits"] = dnsbl_lookup(ip, REPUTATION_CFG["DNSBL"]["ZONES"])
+        if REPUTATION_CFG["ABUSEIPDB"]["ENABLED"]:
+            rep["abuseipdb"] = abuseipdb_check(ip, abuseipdb_key)
+        if REPUTATION_CFG["IPQS"]["ENABLED"]:
+            rep["ipqs"] = ipqs_ip_check(ip, ipqs_key)
+
+    # Website discovery + company profile
+    final_url, status, site_err = discover_site(domain)
+    website = {"discovered_url": final_url, "http_status": status, "error": site_err}
+    company_profile = None
+    ch_enrichment = None
+
+    if final_url:
+        try:
+            r = requests.get(final_url, headers={"User-Agent": UA}, timeout=TIMEOUT)
+            if r.text:
+                company_profile = extract_company_from_html(r.text, final_url)
+                # Optional Companies House enrichment if UK company number detected
+                if company_profile.get("company_number"):
+                    ch_enrichment = enrich_companies_house(company_profile["company_number"], companies_house_key)
+        except Exception as e:
+            website["error"] = f"fetch_failed: {e.__class__.__name__}: {e}"
+
+    minimal = {
+        "input_email": email,
+        "domain": domain,
+        "domain_whois": whois_min,
+        **ssl_min,
+        "ip_details": ip_details,
+        "reputation": rep,
+        "website": website,
+        "company_profile": company_profile,
+        "companies_house": ch_enrichment,
+    }
+
+    minimal.update(compute_risk(whois_min, ssl_min, ip_details, rep))
+
+    if not verbose:
+        return minimal
+
+    # ---- VERBOSE EXTRAS ----
+    verbose_blob: Dict[str, Any] = {}
+    r = dns.resolver.Resolver(); r.timeout = r.lifetime = TIMEOUT
+
+    def safe_resolve(name, rtype):
+        try: return [x.to_text() for x in r.resolve(name, rtype)]
+        except Exception: return []
+
+    verbose_blob["dns"] = {
+        "A": A,
+        "AAAA": safe_resolve(domain, "AAAA"),
+        "MX": [
+            {"preference": rr.preference, "host": str(rr.exchange).rstrip(".")}
+            for rr in (r.resolve(domain, "MX") if safe_resolve(domain, "MX") else [])
+        ],
+    }
+
+    try:
+        full_w = whois.whois(domain)
+        verbose_blob["domain_whois_full"] = {k: (v if k != "text" else None) for k, v in full_w.__dict__.items()}
+    except Exception as e:
+        verbose_blob["domain_whois_full_error"] = str(e)
+
+    return {**minimal, **verbose_blob}
+
+# ----------------------------- CLI -----------------------------
+
+def main():
+    ap = argparse.ArgumentParser(description="ScamAdvisory Email Diagnostics + Risk + Website company extraction.")
+    ap.add_argument("email", help="Email to check, e.g. user@example.com")
+    ap.add_argument("--verbose", action="store_true", help="Include DNS details and extended WHOIS")
+    ap.add_argument("--abuseipdb-key", default=os.getenv("ABUSEIPDB_KEY"), help="AbuseIPDB API key")
+    ap.add_argument("--ipqs-key", default=os.getenv("IPQS_KEY"), help="IPQualityScore API key")
+    ap.add_argument("--companies-house-key", default=os.getenv("COMPANIES_HOUSE_KEY"), help="Companies House API key")
+    args = ap.parse_args()
+
+    data = diag(
+        args.email,
+        verbose=args.verbose,
+        abuseipdb_key=args.abuseipdb_key,
+        ipqs_key=args.ipqs_key,
+        companies_house_key=args.companies_house_key,
+    )
+    print(json.dumps(data, ensure_ascii=False, indent=2))
+
+if __name__ == "__main__":
+    main()
+

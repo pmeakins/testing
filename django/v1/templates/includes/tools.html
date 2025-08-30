@@ -17,6 +17,8 @@
 
   <div class="max-w-4xl mx-auto p-1">
     <ul class="space-y-6">
+
+{% comment %}
       <li class="bg-white rounded-lg shadow-md p-6 border-l-4 border-blue-500">
         <h2 class="text-xl font-bold text-gray-800 mb-4"><i class="fa-solid fa-phone"></i> Quick phone number information</h2>
 
@@ -29,7 +31,9 @@
 
         <div id="number-result" class="mt-3"></div>
       </li>
+      {% endcomment %}
 
+{% comment %}
       <li class="bg-white rounded-lg shadow-md p-6 border-l-4 border-green-500">
         <form class="ajax" action="{% url 'validate_email' %}" method="post" data-target="#email-result">
           {% csrf_token %}
@@ -38,7 +42,7 @@
         </form>
         <div id="email-result" class="mt-3"></div>
       </li>
-
+ {% endcomment %}
 
 
       <li class="bg-white rounded-lg shadow-md p-6 border-l-4 border-green-500">

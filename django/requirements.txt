@@ -5,4 +5,7 @@ pyyaml
 bs4
 whitenoise
 dnspython
-
+nspython 
+ipwhois 
+python-whois 
+beautifulsoup4

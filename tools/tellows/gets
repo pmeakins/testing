@@ -8,7 +8,7 @@ do
 echo $x
  > tmp
  c=$(echo $x |  awk -F'\/\/' '{print $2}' )
- curl -k "${x}/stats/partnerscoredata?apikeyMd5=c94eabde3ae76eeabfd5758256aa1b8d&mosttagged=1&minscore=1&mincomments=0&showdeeplink=1&showcallertypeid=1&showcallername=1&showprefixname=1" > tmp
+ curl -s -k "${x}/stats/partnerscoredata?apikeyMd5=c94eabde3ae76eeabfd5758256aa1b8d&mosttagged=1&minscore=1&mincomments=0&showdeeplink=1&showcallertypeid=1&showcallername=1&showprefixname=1" > tmp
  cp tmp country/${c}
 
 done

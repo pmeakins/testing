@@ -1,0 +1,287 @@
+#!/usr/bin/env python3
+import argparse
+import socket
+import ssl
+import sys
+import json
+from datetime import datetime, timezone
+from typing import Dict, List, Any, Optional
+
+import dns.resolver
+import requests
+import whois
+from ipwhois import IPWhois
+
+TIMEOUT = 6  # seconds
+USER_AGENT = "ScamRegistryEmailDiag/1.0 (+https://scamregistry.co.uk)"
+
+def to_iso(dt) -> Optional[str]:
+    if isinstance(dt, list) and dt:
+        dt = dt[0]
+    if isinstance(dt, datetime):
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=timezone.utc)
+        return dt.astimezone(timezone.utc).isoformat()
+    if isinstance(dt, str):
+        return dt
+    return None
+
+def get_domain_from_email(email: str) -> str:
+    if "@" not in email:
+        raise ValueError("Input must be an email address like name@example.com")
+    return email.split("@", 1)[1].strip().lower()
+
+def resolve_records(domain: str) -> Dict[str, Any]:
+    res = dns.resolver.Resolver()
+    res.lifetime = TIMEOUT
+    res.timeout = TIMEOUT
+
+    out = {"A": [], "AAAA": [], "MX": [], "MX_IPs": []}
+
+    # A / AAAA
+    for rtype in ("A", "AAAA"):
+        try:
+            answers = res.resolve(domain, rtype)
+            out[rtype] = [a.to_text() for a in answers]
+        except Exception:
+            pass
+
+    # MX
+    try:
+        answers = res.resolve(domain, "MX")
+        # Prefer lowest preference first
+        mx = sorted([(r.preference, str(r.exchange).rstrip(".")) for r in answers], key=lambda x: x[0])
+        out["MX"] = [{"preference": pref, "host": host} for pref, host in mx]
+        # Resolve MX IPs
+        for _, host in mx:
+            for rtype in ("A", "AAAA"):
+                try:
+                    answers = res.resolve(host, rtype)
+                    for a in answers:
+                        out["MX_IPs"].append({"host": host, "rtype": rtype, "ip": a.to_text()})
+                except Exception:
+                    pass
+    except Exception:
+        pass
+
+    return out
+
+def whois_domain(domain: str) -> Dict[str, Any]:
+    try:
+        data = whois.whois(domain)
+        return {
+            "domain_name": data.domain_name,
+            "registrar": data.registrar,
+            "creation_date": to_iso(data.creation_date),
+            "expiration_date": to_iso(data.expiration_date),
+            "updated_date": to_iso(data.updated_date),
+            "statuses": data.status,
+            "name_servers": data.name_servers,
+            "raw": None  # avoid dumping massive text; set to data.text if you want full
+        }
+    except Exception as e:
+        return {"error": f"domain whois failed: {e.__class__.__name__}: {e}"}
+
+def ip_owner(ip: str) -> Dict[str, Any]:
+    try:
+        rdap = IPWhois(ip).lookup_rdap(asn_methods=["whois"], retry_count=1)
+        net = rdap.get("network") or {}
+        obj = {
+            "ip": ip,
+            "asn": rdap.get("asn"),
+            "asn_description": rdap.get("asn_description"),
+            "cidr": net.get("cidr"),
+            "name": net.get("name"),
+            "handle": net.get("handle"),
+            "country": rdap.get("asn_country_code") or net.get("country"),
+            "org": None,
+        }
+        # Try to extract org from RDAP objects
+        entities = rdap.get("objects", {})
+        for _, ent in entities.items():
+            roles = ent.get("roles") or []
+            if "registrant" in roles or "owner" in roles or "abuse" in roles:
+                vcard = ent.get("vcardArray", [])
+                if len(vcard) == 2:
+                    for item in vcard[1]:
+                        if item[0] == "fn" and len(item) > 3:
+                            obj["org"] = item[3]
+                            break
+                if obj["org"]:
+                    break
+        return obj
+    except Exception as e:
+        return {"ip": ip, "error": f"ip rdap failed: {e.__class__.__name__}: {e}"}
+
+def ip_geo(ip: str) -> Dict[str, Any]:
+    # Using ip-api.com (no key, fair-use); you can swap to a paid provider if needed.
+    try:
+        r = requests.get(
+            f"http://ip-api.com/json/{ip}",
+            params={"fields": "status,message,country,regionName,city,lat,lon,isp,org,as,query"},
+            headers={"User-Agent": USER_AGENT},
+            timeout=TIMEOUT,
+        )
+        j = r.json()
+        if j.get("status") != "success":
+            return {"ip": ip, "error": f"geo failed: {j.get('message')}"}
+        return {
+            "ip": ip,
+            "country": j.get("country"),
+            "region": j.get("regionName"),
+            "city": j.get("city"),
+            "lat": j.get("lat"),
+            "lon": j.get("lon"),
+            "isp": j.get("isp"),
+            "org": j.get("org"),
+            "as": j.get("as"),
+        }
+    except Exception as e:
+        return {"ip": ip, "error": f"geo failed: {e.__class__.__name__}: {e}"}
+
+def try_connect_ssl(hostname: str, port: int = 443) -> Dict[str, Any]:
+    """Attempt a verified TLS connection (valid chain + hostname). If that fails,
+    fall back to grabbing whatever cert is served to inspect it."""
+    result: Dict[str, Any] = {"hostname": hostname, "port": port}
+
+    # First, attempt a verified connection using default trust store
+    try:
+        context = ssl.create_default_context()
+        context.check_hostname = True
+        context.verify_mode = ssl.CERT_REQUIRED
+
+        with socket.create_connection((hostname, port), timeout=TIMEOUT) as sock:
+            with context.wrap_socket(sock, server_hostname=hostname) as ssock:
+                cert = ssock.getpeercert()
+                result["tls_valid"] = True
+                result["protocol"] = ssock.version()
+                result["cipher"] = ssock.cipher()
+                result.update(parse_cert(cert))
+                return result
+    except Exception as e:
+        result["tls_valid"] = False
+        result["verify_error"] = f"{e.__class__.__name__}: {e}"
+
+    # Fallback: unverified to inspect cert
+    try:
+        context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
+        context.check_hostname = False
+        context.verify_mode = ssl.CERT_NONE
+        with socket.create_connection((hostname, port), timeout=TIMEOUT) as sock:
+            with context.wrap_socket(sock, server_hostname=hostname) as ssock:
+                cert = ssock.getpeercert()
+                result["protocol"] = ssock.version()
+                result["cipher"] = ssock.cipher()
+                result.update(parse_cert(cert))
+    except Exception as e:
+        result["error"] = f"tls connect failed: {e.__class__.__name__}: {e}"
+
+    return result
+
+def parse_name_tuple_list(tuples: List[tuple]) -> Dict[str, str]:
+    out = {}
+    for k, v in tuples:
+        out[k] = v
+    return out
+
+def parse_cert(cert_dict: Dict[str, Any]) -> Dict[str, Any]:
+    # cert_dict is from ssl.getpeercert()
+    subject = {}
+    issuer = {}
+    try:
+        if "subject" in cert_dict:
+            # subject is a list of tuples of tuples
+            # e.g., ((('commonName', 'example.com'),), (('organizationName', 'Org'),))
+            for rdn in cert_dict.get("subject", []):
+                subject.update(parse_name_tuple_list(rdn))
+        if "issuer" in cert_dict:
+            for rdn in cert_dict.get("issuer", []):
+                issuer.update(parse_name_tuple_list(rdn))
+        san = [v for (k, v) in cert_dict.get("subjectAltName", []) if k == "DNS"]
+        not_before = cert_dict.get("notBefore")
+        not_after = cert_dict.get("notAfter")
+        # Normalise dates
+        def parse_dt(s):
+            try:
+                return datetime.strptime(s, "%b %d %H:%M:%S %Y %Z").replace(tzinfo=timezone.utc).isoformat()
+            except Exception:
+                return s
+
+        info = {
+            "subject": subject or None,
+            "issuer": issuer or None,
+            "subject_alt_names": san or None,
+            "not_before": parse_dt(not_before) if not_before else None,
+            "not_after": parse_dt(not_after) if not_after else None,
+        }
+
+        # Simple heuristics
+        is_self_signed = subject and issuer and subject == issuer
+        issuer_cn = issuer.get("commonName") if issuer else None
+        issuer_o = issuer.get("organizationName") if issuer else None
+
+        info["is_self_signed"] = bool(is_self_signed)
+        info["issuer_summary"] = issuer_cn or issuer_o
+        info["is_lets_encrypt"] = (
+            ("Let's Encrypt" in (issuer_cn or "")) or ("Let's Encrypt" in (issuer_o or ""))
+        )
+
+        return info
+    except Exception as e:
+        return {"cert_parse_error": f"{e.__class__.__name__}: {e}", "raw": cert_dict}
+
+def diag_email(email: str) -> Dict[str, Any]:
+    domain = get_domain_from_email(email)
+    dns_info = resolve_records(domain)
+
+    # Pick a candidate web host to test TLS against:
+    # prefer the domain itself if it has an A/AAAA; else try www.<domain>
+    web_host = domain
+    if not dns_info["A"] and not dns_info["AAAA"]:
+        web_host = f"www.{domain}"
+
+    ssl_info = try_connect_ssl(web_host)
+
+    # Domain WHOIS
+    domain_info = whois_domain(domain)
+
+    # Build list of unique IPs to annotate
+    ips = set(dns_info.get("A", []) + [entry["ip"] for entry in dns_info.get("MX_IPs", []) if ":" not in entry["ip"]])
+    # (You can also include AAAA if you want IPv6 geos: dns_info["AAAA"])
+
+    ip_details = []
+    for ip in sorted(ips):
+        owner = ip_owner(ip)
+        geo = ip_geo(ip)
+        ip_details.append({"ip": ip, "owner": owner, "geo": geo})
+
+    return {
+        "input_email": email,
+        "domain": domain,
+        "dns": dns_info,
+        "domain_whois": domain_info,
+        "ssl": ssl_info,
+        "ip_details": ip_details,
+    }
+
+def main():
+    parser = argparse.ArgumentParser(description="Email diagnostics (domain/IP/WHOIS/Geo/SSL)")
+    parser.add_argument("email", help="Email address to check, e.g. user@example.com")
+    parser.add_argument("-o", "--output", choices=["json", "pretty"], default="pretty", help="Output format")
+    args = parser.parse_args()
+
+    try:
+        report = diag_email(args.email)
+    except Exception as e:
+        print(json.dumps({"error": f"{e.__class__.__name__}: {e}"}), file=sys.stderr)
+        sys.exit(1)
+
+    if args.output == "json":
+        print(json.dumps(report, ensure_ascii=False, indent=2))
+    else:
+        # Pretty minimal print
+        print(json.dumps(report, ensure_ascii=False, indent=2))
+
+if __name__ == "__main__":
+    main()
+

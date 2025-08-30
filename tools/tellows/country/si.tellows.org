@@ -1,8 +1,8 @@
 PhoneNumber;Score;Ratings;Country;Area Code;Search Requests;CallerType;NameCompany;PrefixName;Deeplink;CallerTypeId
-0598659344079;8;5;386;59;2140;Harassment calls;neznano;VoIP;https://si.tellows.org/num/0598659344079;7;
-+38659344079;8;5;386;59;2140;Harassment calls;neznano;VoIP;https://si.tellows.org/num/0598659344079;7;
-0598659353469;7;19;386;59;9234;Survey;;VoIP;https://si.tellows.org/num/0598659353469;6;
-+38659353469;7;19;386;59;9234;Survey;;VoIP;https://si.tellows.org/num/0598659353469;6;
+0598659344079;8;5;386;59;2166;Harassment calls;neznano;VoIP;https://si.tellows.org/num/0598659344079;7;
++38659344079;8;5;386;59;2166;Harassment calls;neznano;VoIP;https://si.tellows.org/num/0598659344079;7;
+0598659353469;7;19;386;59;9236;Survey;;VoIP;https://si.tellows.org/num/0598659353469;6;
++38659353469;7;19;386;59;9236;Survey;;VoIP;https://si.tellows.org/num/0598659353469;6;
 0038627070140;8;9;386;2;7388;Ping Call;;Maribor, Ravne na Koroskem, Murska Sobot;https://si.tellows.org/num/0038627070140;10;
 027070140;8;9;386;2;7388;Ping Call;;Maribor, Ravne na Koroskem, Murska Sobot;https://si.tellows.org/num/0038627070140;10;
 +94789697588;8;3;94;9999;2054;Sweepstakes, lottery;;;https://si.tellows.org/num/%2B94789697588;3;
